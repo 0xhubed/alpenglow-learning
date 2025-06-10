@@ -10,7 +10,7 @@
 
 ### Frontend
 ```yaml
-Framework: Next.js 14+ (App Router)
+Framework: Next.js 13.5.x (App Router) # Compatible with Node.js 18.14
 Sprache: TypeScript
 Styling: 
   - Tailwind CSS
@@ -27,83 +27,139 @@ Audio: Howler.js
 Icons: Lucide React
 ```
 
+### Backend & Database
+```yaml
+Runtime: Node.js 18.14.2 (LTS)
+Framework: Express.js 4.18.x
+API: RESTful API mit JSON
+Authentifizierung: JSON Web Tokens (JWT)
+Validation: Joi oder express-validator
+
+Database:
+  Haupt-DB: PostgreSQL 15.x
+    - Benutzerprofile
+    - Spielfortschritt
+    - Achievements
+    - Lernstatistiken
+  Cache: Redis 7.x
+    - Session Management
+    - Spielstände Zwischenspeicherung
+    - Leaderboards
+  File Storage: 
+    - Local filesystem für Development
+    - AWS S3 oder Cloudinary für Production (Bilder, Audio)
+
+ORM/Query Builder: 
+  - Prisma 5.x (mit Node.js 18 kompatibel)
+  - Alternative: Knex.js mit Objection.js
+
+Database Schema:
+  - users (id, username, email, created_at)
+  - profiles (user_id, avatar, age_group, preferences)
+  - game_progress (user_id, game_id, level, score, completed_at)
+  - achievements (id, name, description, icon)
+  - user_achievements (user_id, achievement_id, earned_at)
+  - learning_stats (user_id, subject, correct_answers, total_attempts)
+```
+
 ### Development Tools
 ```yaml
-Build Tool: Vite (für schnelle Entwicklung)
+Build Tool: Next.js built-in (Webpack 5)
 Linting: ESLint + Prettier
 Testing: 
   - Jest für Unit Tests
   - React Testing Library
   - Playwright für E2E Tests
 Version Control: Git
-Package Manager: pnpm (für bessere Performance)
+Package Manager: npm (Node.js 18.14 kompatibel)
 ```
 
 ## Projektstruktur
 
 ```
 schweizer-lernspiel/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   ├── spiele/
-│   │   │   ├── buchstaben/
-│   │   │   ├── zahlen/
-│   │   │   ├── natur/
-│   │   │   └── musik/
-│   │   └── profil/
-│   ├── components/
-│   │   ├── ui/                 # Basis UI-Komponenten
-│   │   ├── game/               # Spiel-spezifische Komponenten
-│   │   ├── animations/         # Animationskomponenten
-│   │   └── layout/             # Layout-Komponenten
-│   ├── lib/
-│   │   ├── game-engine/        # Spiel-Logik
-│   │   ├── audio/              # Audio-Management
-│   │   ├── animations/         # Animation Utilities
-│   │   └── utils/              # Allgemeine Utilities
-│   ├── hooks/                  # Custom React Hooks
-│   ├── store/                  # Zustand Store
-│   ├── types/                  # TypeScript Types
-│   └── styles/                 # Globale Styles
-├── public/
-│   ├── audio/                  # Soundeffekte & Musik
-│   ├── images/                 # Statische Bilder
-│   └── animations/             # Lottie JSON Files
-└── tests/                      # Test-Dateien
+├── frontend/
+│   ├── src/
+│   │   ├── app/                    # Next.js App Router
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── api/               # API Routes (für BFF Pattern)
+│   │   │   ├── spiele/
+│   │   │   │   ├── buchstaben/
+│   │   │   │   ├── zahlen/
+│   │   │   │   ├── natur/
+│   │   │   │   └── musik/
+│   │   │   └── profil/
+│   │   ├── components/
+│   │   │   ├── ui/                 # Basis UI-Komponenten
+│   │   │   ├── game/               # Spiel-spezifische Komponenten
+│   │   │   ├── animations/         # Animationskomponenten
+│   │   │   └── layout/             # Layout-Komponenten
+│   │   ├── lib/
+│   │   │   ├── game-engine/        # Spiel-Logik
+│   │   │   ├── audio/              # Audio-Management
+│   │   │   ├── animations/         # Animation Utilities
+│   │   │   └── utils/              # Allgemeine Utilities
+│   │   ├── hooks/                  # Custom React Hooks
+│   │   ├── store/                  # Zustand Store
+│   │   ├── types/                  # TypeScript Types
+│   │   └── styles/                 # Globale Styles
+│   ├── public/
+│   │   ├── audio/                  # Soundeffekte & Musik
+│   │   ├── images/                 # Statische Bilder
+│   │   └── animations/             # Lottie JSON Files
+│   └── tests/                      # Frontend Tests
+├── backend/
+│   ├── src/
+│   │   ├── api/                    # API Endpoints
+│   │   │   ├── auth/
+│   │   │   ├── users/
+│   │   │   ├── games/
+│   │   │   └── progress/
+│   │   ├── middleware/             # Express Middleware
+│   │   ├── services/               # Business Logic
+│   │   ├── models/                 # Database Models
+│   │   ├── utils/                  # Utility Functions
+│   │   └── config/                 # Configuration
+│   ├── prisma/
+│   │   ├── schema.prisma           # Database Schema
+│   │   └── migrations/             # Database Migrations
+│   └── tests/                      # Backend Tests
+├── shared/                         # Shared Types/Interfaces
+└── docker-compose.yml              # Local Development Setup
 ```
 
 ## Implementierungsphasen
 
-### Phase 1: Projekt-Setup & Grundstruktur (Woche 1)
+### Phase 1: Projekt-Setup & Grundstruktur (Woche 1) ✅ ABGESCHLOSSEN
 
 #### Tasks:
-1. **Projekt initialisieren**
+1. **Projekt initialisieren** ✅
    ```bash
-   npx create-next-app@latest schweizer-lernspiel --typescript --tailwind --app
+   npx create-next-app@13.5.6 schweizer-lernspiel --typescript --tailwind --app
    cd schweizer-lernspiel
-   pnpm add framer-motion zustand howler lucide-react @radix-ui/react-dialog
+   npm install framer-motion@10.16.4 zustand@4.4.1 howler@2.2.4 lucide-react@0.292.0 @radix-ui/react-dialog@1.0.5
+   npm install -D @types/howler@2.2.11
    ```
 
-2. **Design-System erstellen**
+2. **Design-System erstellen** ✅
    - Farbpalette definieren (Schweizer Farben + kinderfreundlich)
    - Typography-System
    - Spacing & Layout-Grid
    - Basis-Komponenten (Button, Card, Modal)
 
-3. **Routing-Struktur**
+3. **Routing-Struktur** ✅
    - Home/Landing Page
    - Spielauswahl
    - Einzelne Spiele
    - Fortschritts-Dashboard
 
-4. **Audio-System**
+4. **Audio-System** ✅
    - Background-Musik Manager
    - Sound-Effekte System
    - Audio-Einstellungen
 
-### Phase 2: Core Game Engine (Woche 2-3)
+### Phase 2: Core Game Engine (Woche 2-3) ✅ ABGESCHLOSSEN
 
 #### Komponenten zu entwickeln:
 
@@ -122,12 +178,16 @@ interface GameEngine {
 }
 ```
 
-#### Features:
-- Punkte-System mit Animationen
-- Level-Progression
-- Belohnungssystem (Sterne, Abzeichen)
-- Speicherung des Fortschritts (localStorage)
-- Fehler-Toleranz für Kinder
+#### Features: ✅ ALLE IMPLEMENTIERT
+- Punkte-System mit Animationen ✅
+- Level-Progression ✅
+- Belohnungssystem (Sterne, Abzeichen) ✅
+- Speicherung des Fortschritts (localStorage) ✅
+- Fehler-Toleranz für Kinder ✅
+- State Management mit Zustand ✅
+- Achievement-System ✅
+- Audio-Integration ✅
+- Auto-Save Funktionalität ✅
 
 ### Phase 3: Erste Minispiele (Woche 4-5)
 
@@ -320,29 +380,106 @@ jobs:
 ## Start-Befehle für Claude Code
 
 ```bash
-# Projekt initialisieren
-npx create-next-app@latest schweizer-lernspiel --typescript --tailwind --app
+# Hauptverzeichnis erstellen
+mkdir schweizer-lernspiel
 cd schweizer-lernspiel
 
-# Dependencies installieren
-pnpm add framer-motion zustand howler lucide-react @radix-ui/react-dialog
-pnpm add -D @types/howler
+# Frontend initialisieren
+npx create-next-app@13.5.6 frontend --typescript --tailwind --app
+cd frontend
+
+# Frontend Dependencies installieren
+npm install framer-motion@10.16.4 zustand@4.4.1 howler@2.2.4 lucide-react@0.292.0 @radix-ui/react-dialog@1.0.5
+npm install -D @types/howler@2.2.11 @types/node@18.19.3 eslint@8.55.0 prettier@3.1.0
+
+# Backend Setup
+mkdir -p backend
+cd backend
+npm init -y
+npm install express@4.18.2 cors@2.8.5 helmet@7.1.0 dotenv@16.3.1 jsonwebtoken@9.0.2
+npm install prisma@5.7.0 @prisma/client@5.7.0 bcryptjs@2.4.3 joi@17.11.0
+npm install -D @types/express@4.17.21 @types/cors@2.8.17 @types/bcryptjs@2.4.6 typescript@5.3.3 ts-node@10.9.2 nodemon@3.0.2
+
+# Database Setup
+npx prisma init
 
 # Entwicklungsserver starten
-pnpm dev
+cd ../frontend && npm run dev
 
-# Projekt-Struktur erstellen
+# Frontend Projekt-Struktur erstellen
+cd frontend
 mkdir -p src/{components/{ui,game,animations,layout},lib/{game-engine,audio,animations,utils},hooks,store,types,styles}
 mkdir -p public/{audio,images,animations}
+
+# Backend Projekt-Struktur erstellen
+cd ../backend
+mkdir -p src/{api/{auth,users,games,progress},middleware,services,models,utils,config}
+mkdir -p tests/{unit,integration}
+
+# Shared Types
+cd ..
+mkdir -p shared/types
+```
+
+## Docker Setup für lokale Entwicklung
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: lernspiel_user
+      POSTGRES_PASSWORD: lernspiel_pass
+      POSTGRES_DB: lernspiel_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+```
+
+## Environment Variables Setup
+
+```bash
+# frontend/.env.local
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# backend/.env
+NODE_ENV=development
+PORT=3001
+DATABASE_URL="postgresql://lernspiel_user:lernspiel_pass@localhost:5432/lernspiel_db"
+REDIS_URL="redis://localhost:6379"
+JWT_SECRET=your-secret-key-here
+JWT_EXPIRES_IN=7d
 ```
 
 ## Erste Implementierungsschritte
 
-1. **Design-System** in `src/styles/globals.css` definieren
-2. **Basis-Layout** in `src/app/layout.tsx` erstellen
-3. **Landing Page** mit Animationen in `src/app/page.tsx`
-4. **Erste Game-Komponente** in `src/components/game/`
-5. **Audio-Manager** in `src/lib/audio/`
-6. **Store-Setup** in `src/store/`
+1. **Backend Setup**
+   - Prisma Schema definieren
+   - Express Server konfigurieren
+   - API Routes erstellen
+   - Authentifizierung implementieren
 
-Viel Erfolg bei der Implementierung! 🚀
+2. **Frontend Setup**
+   - Design-System in `frontend/src/styles/globals.css`
+   - API Client Setup
+   - Basis-Layout in `frontend/src/app/layout.tsx`
+   - Landing Page mit Animationen
+
+3. **Integration**
+   - Frontend-Backend Verbindung testen
+   - Authentifizierungs-Flow
+   - Erste Game-Komponente
+
+Viel Erfolg bei der Implementierung!

@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id              String            @id @default(cuid())
+  username        String            @unique
+  email           String            @unique
+  password        String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  profile         Profile?
+  gameProgress    GameProgress[]
+  userAchievements UserAchievement[]
+  learningStats   LearningStats[]
+  
+  @@map("users")
+}
+
+// User profile
+model Profile {
+  id              String            @id @default(cuid())
+  userId          String            @unique
+  avatar          String?
+  ageGroup        String            @default("6-7")
+  preferences     Json              @default("{}")
+  totalPoints     Int               @default(0)
+  currentLevel    Int               @default(1)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("profiles")
+}
+
+// Game types
+enum GameType {
+  BUCHSTABEN
+  ZAHLEN
+  NATUR
+  MUSIK
+}
+
+// Game progress tracking
+model GameProgress {
+  id              String            @id @default(cuid())
+  userId          String
+  gameType        GameType
+  level           Int               @default(1)
+  score           Int               @default(0)
+  highScore       Int               @default(0)
+  stars           Int               @default(0)
+  isCompleted     Boolean           @default(false)
+  completedAt     DateTime?
+  lastPlayedAt    DateTime          @default(now())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, gameType, level])
+  @@map("game_progress")
+}
+
+// Achievements
+model Achievement {
+  id              String            @id @default(cuid())
+  name            String            @unique
+  description     String
+  icon            String
+  points          Int               @default(10)
+  category        String
+  createdAt       DateTime          @default(now())
+  
+  userAchievements UserAchievement[]
+  
+  @@map("achievements")
+}
+
+// User achievements (many-to-many)
+model UserAchievement {
+  id              String            @id @default(cuid())
+  userId          String
+  achievementId   String
+  earnedAt        DateTime          @default(now())
+  
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement     Achievement       @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+// Learning statistics
+model LearningStats {
+  id              String            @id @default(cuid())
+  userId          String
+  subject         String
+  gameType        GameType
+  correctAnswers  Int               @default(0)
+  totalAttempts   Int               @default(0)
+  averageTime     Float             @default(0)
+  streak          Int               @default(0)
+  lastActivity    DateTime          @default(now())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, subject, gameType])
+  @@map("learning_stats")
+}
