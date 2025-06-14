@@ -286,6 +286,8 @@ export class GameEngine {
 
   // Storage methods
   private saveProgress(): void {
+    if (typeof window === 'undefined') return;
+    
     const progressKey = `game_progress_${this.config.gameType}`;
     const progress = {
       score: this.state.score,
@@ -296,6 +298,8 @@ export class GameEngine {
   }
 
   private getHighScore(): number {
+    if (typeof window === 'undefined') return 0;
+    
     const progressKey = `game_progress_${this.config.gameType}`;
     const saved = localStorage.getItem(progressKey);
     
@@ -308,16 +312,22 @@ export class GameEngine {
   }
 
   private saveHighScore(): void {
+    if (typeof window === 'undefined') return;
+    
     const highScoreKey = `high_score_${this.config.gameType}`;
     localStorage.setItem(highScoreKey, this.state.score.high.toString());
   }
 
   private saveAchievements(): void {
+    if (typeof window === 'undefined') return;
+    
     const achievementsKey = `achievements_${this.config.gameType}`;
     localStorage.setItem(achievementsKey, JSON.stringify(this.achievements));
   }
 
   private loadAchievements(): void {
+    if (typeof window === 'undefined') return;
+    
     const achievementsKey = `achievements_${this.config.gameType}`;
     const saved = localStorage.getItem(achievementsKey);
     

@@ -59,6 +59,7 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  caret-color: transparent; /* Hide text cursor/caret */
 }
 
 html,
@@ -119,6 +120,15 @@ body {
   @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6;
 }
 
+/* 3D Card Flip Effect */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
 /* Button base styles */
 .btn {
   @apply px-6 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 active:scale-95;
@@ -134,4 +144,120 @@ body {
 
 .btn-success {
   @apply bg-green-600 text-white hover:bg-green-700 shadow-lg;
+}
+
+/* Cursor behavior for interactive elements */
+button, [role="button"], .btn {
+  cursor: pointer;
+}
+
+.draggable {
+  cursor: grab;
+  user-select: none;
+}
+
+.draggable:active {
+  cursor: grabbing;
+}
+
+/* Hide text selection and cursor in game areas */
+.game-area, .game-container {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Force hide cursor on all game elements */
+.game-area *, .game-container * {
+  caret-color: transparent !important;
+}
+
+/* Ensure no focus outlines show cursor */
+.game-area *:focus, .game-container *:focus {
+  outline: none;
+  caret-color: transparent !important;
+}
+
+/* Hide cursor on specific elements that might show it */
+.game-area div, .game-area span, .game-area p, .game-area h1, .game-area h2, .game-area h3 {
+  caret-color: transparent !important;
+  cursor: default;
+}
+
+/* Prevent any accidental text cursor on motion divs */
+.game-area .framer-motion-div {
+  caret-color: transparent !important;
+  cursor: default;
+}
+
+/* NUCLEAR OPTION: Hide cursor EVERYWHERE */
+*, *::before, *::after {
+  caret-color: transparent !important;
+  -webkit-caret-color: transparent !important;
+  -moz-caret-color: transparent !important;
+}
+
+/* Force override any possible cursor settings */
+body, html, div, span, p, h1, h2, h3, h4, h5, h6 {
+  caret-color: transparent !important;
+  -webkit-caret-color: transparent !important;
+  -moz-caret-color: transparent !important;
+}
+
+/* Override any framework defaults */
+[class*="motion"], [class*="framer"], [class*="next"], [class*="react"] {
+  caret-color: transparent !important;
+  -webkit-caret-color: transparent !important;
+  -moz-caret-color: transparent !important;
+}
+
+/* Disable text selection and cursor everywhere except buttons */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Re-enable selection only for input elements (if any) */
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Ensure minimum touch target size for buttons and clickable elements */
+  .cursor-pointer, button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve tap highlighting */
+  .cursor-pointer, button, [role="button"] {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Better spacing for mobile */
+  .game-area {
+    touch-action: manipulation;
+  }
+  
+  /* Prevent zoom on input focus */
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Prevent horizontal scrolling on mobile */
+body {
+  overflow-x: hidden;
+}
+
+/* Improve touch scrolling */
+.game-area {
+  -webkit-overflow-scrolling: touch;
 }

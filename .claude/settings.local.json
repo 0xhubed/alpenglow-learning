@@ -6,7 +6,19 @@
       "Bash(npm install:*)",
       "Bash(ls:*)",
       "Bash(mv:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(sudo apt:*)",
+      "Bash(sudo apt install:*)",
+      "Bash(docker compose:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(chmod:*)",
+      "Bash(./start-dev.sh:*)",
+      "Bash(./stop-dev.sh:*)",
+      "Bash(timeout 6 npm run dev)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

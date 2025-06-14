@@ -21,7 +21,7 @@ const Card: React.FC<CardProps> = ({
   const baseClasses = 'rounded-xl p-6 transition-all duration-300';
   const glassClasses = isGlass
     ? 'glass-effect'
-    : 'bg-white shadow-lg';
+    : className.includes('bg-') ? 'shadow-lg' : 'bg-white shadow-lg';
   const hoverableClasses = isHoverable
     ? 'cursor-pointer hover:shadow-xl hover:transform hover:scale-105'
     : '';

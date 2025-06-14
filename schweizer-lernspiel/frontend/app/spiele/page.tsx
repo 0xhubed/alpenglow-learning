@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/ui/Card';
-import { BookOpen, Calculator, Trees, Music, ArrowLeft } from 'lucide-react';
+import { BookOpen, Calculator, Trees, Music, ArrowLeft, User, Map, Compass } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { useAudio } from '@/hooks/useAudio';
 
@@ -28,21 +28,39 @@ const games = [
   },
   {
     id: 'natur',
-    title: 'Tier-Safari',
-    description: 'Entdecke die Schweizer Tierwelt auf einer spannenden Safari!',
+    title: 'Schweizer Natur-Quiz',
+    description: 'Teste dein Wissen über Tiere, Pflanzen und Berge der Schweiz!',
     icon: Trees,
-    color: 'from-yellow-400 to-yellow-600',
-    bgColor: 'bg-yellow-50',
+    color: 'from-emerald-400 to-emerald-600',
+    bgColor: 'bg-emerald-50',
     available: true,
   },
   {
-    id: 'musik',
+    id: 'alphorn',
     title: 'Alphorn-Melodie',
     description: 'Spiele wunderschöne Melodien mit dem Alphorn!',
     icon: Music,
     color: 'from-purple-400 to-purple-600',
     bgColor: 'bg-purple-50',
-    available: false,
+    available: true,
+  },
+  {
+    id: 'kantone',
+    title: 'Kantone-Puzzle',
+    description: 'Setze die Schweizer Kantone auf der Karte zusammen!',
+    icon: Map,
+    color: 'from-red-400 to-red-600',
+    bgColor: 'bg-red-50',
+    available: true,
+  },
+  {
+    id: 'jahreszeiten',
+    title: 'Jahreszeiten-Rad',
+    description: 'Ordne Gegenstände den richtigen Jahreszeiten zu!',
+    icon: Compass,
+    color: 'from-orange-400 to-orange-600',
+    bgColor: 'bg-orange-50',
+    available: true,
   },
 ];
 
@@ -64,29 +82,44 @@ export default function GamesPage() {
     router.push('/');
   };
 
+  const handleProfile = () => {
+    playSound('click');
+    router.push('/profil');
+  };
+
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-4 sm:p-8">
       <div className="game-container">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
-          <Button
-            variant="secondary"
-            icon={ArrowLeft}
-            onClick={handleBack}
-            className="mb-6"
-          >
-            Zurück
-          </Button>
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <Button
+              variant="secondary"
+              icon={ArrowLeft}
+              onClick={handleBack}
+            >
+              Zurück
+            </Button>
+            
+            <Button
+              variant="success"
+              icon={User}
+              onClick={handleProfile}
+              className="w-full sm:w-auto"
+            >
+              Wähle dein Tier!
+            </Button>
+          </div>
           
-          <h1 className="text-4xl font-bold text-gray-800 text-center">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 text-center">
             Wähle dein Spiel!
           </h1>
-          <p className="text-xl text-gray-600 text-center mt-2">
-            Klicke auf ein Spiel, um zu beginnen
+          <p className="text-lg sm:text-xl text-gray-600 text-center mt-2">
+            Tippe auf ein Spiel, um zu beginnen
           </p>
         </motion.div>
 

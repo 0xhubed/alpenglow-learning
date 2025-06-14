@@ -20,26 +20,28 @@ class AudioManager {
   private musicVolume: number = 0.5;
 
   constructor() {
-    // Check if audio is enabled in localStorage
-    const savedMuted = localStorage.getItem('audioMuted');
-    const savedMasterVolume = localStorage.getItem('masterVolume');
-    const savedSoundEffectsVolume = localStorage.getItem('soundEffectsVolume');
-    const savedMusicVolume = localStorage.getItem('musicVolume');
+    // Check if audio is enabled in localStorage (only on client side)
+    if (typeof window !== 'undefined') {
+      const savedMuted = localStorage.getItem('audioMuted');
+      const savedMasterVolume = localStorage.getItem('masterVolume');
+      const savedSoundEffectsVolume = localStorage.getItem('soundEffectsVolume');
+      const savedMusicVolume = localStorage.getItem('musicVolume');
 
-    if (savedMuted !== null) {
-      this.isMuted = savedMuted === 'true';
-    }
-    if (savedMasterVolume !== null) {
-      this.masterVolume = parseFloat(savedMasterVolume);
-    }
-    if (savedSoundEffectsVolume !== null) {
-      this.soundEffectsVolume = parseFloat(savedSoundEffectsVolume);
-    }
-    if (savedMusicVolume !== null) {
-      this.musicVolume = parseFloat(savedMusicVolume);
-    }
+      if (savedMuted !== null) {
+        this.isMuted = savedMuted === 'true';
+      }
+      if (savedMasterVolume !== null) {
+        this.masterVolume = parseFloat(savedMasterVolume);
+      }
+      if (savedSoundEffectsVolume !== null) {
+        this.soundEffectsVolume = parseFloat(savedSoundEffectsVolume);
+      }
+      if (savedMusicVolume !== null) {
+        this.musicVolume = parseFloat(savedMusicVolume);
+      }
 
-    Howler.volume(this.isMuted ? 0 : this.masterVolume);
+      Howler.volume(this.isMuted ? 0 : this.masterVolume);
+    }
   }
 
   // Load a sound effect
@@ -127,7 +129,9 @@ class AudioManager {
   toggleMute(): boolean {
     this.isMuted = !this.isMuted;
     Howler.volume(this.isMuted ? 0 : this.masterVolume);
-    localStorage.setItem('audioMuted', this.isMuted.toString());
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('audioMuted', this.isMuted.toString());
+    }
     return this.isMuted;
   }
 
@@ -137,13 +141,17 @@ class AudioManager {
     if (!this.isMuted) {
       Howler.volume(this.masterVolume);
     }
-    localStorage.setItem('masterVolume', this.masterVolume.toString());
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('masterVolume', this.masterVolume.toString());
+    }
   }
 
   // Set sound effects volume
   setSoundEffectsVolume(volume: number): void {
     this.soundEffectsVolume = Math.max(0, Math.min(1, volume));
-    localStorage.setItem('soundEffectsVolume', this.soundEffectsVolume.toString());
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('soundEffectsVolume', this.soundEffectsVolume.toString());
+    }
     
     // Update all loaded sound effects volumes
     Object.values(this.sounds).forEach(sound => {
@@ -154,7 +162,9 @@ class AudioManager {
   // Set music volume
   setMusicVolume(volume: number): void {
     this.musicVolume = Math.max(0, Math.min(1, volume));
-    localStorage.setItem('musicVolume', this.musicVolume.toString());
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('musicVolume', this.musicVolume.toString());
+    }
     
     if (this.backgroundMusic) {
       this.backgroundMusic.volume(this.musicVolume);

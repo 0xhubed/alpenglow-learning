@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Test - Schweizer Lernspiel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom, #3b82f6, #1e40af);
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .touch-target {
+            background: #fbbf24;
+            color: #1f2937;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            min-height: 44px;
+            min-width: 44px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+        }
+        .letter-tile {
+            background: #fbbf24;
+            color: #1f2937;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .word-slot {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px dashed white;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .touch-target, .letter-tile, .word-slot {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mobile Touch Test</h1>
+        
+        <div class="test-section">
+            <h2>🎮 Button Touch Test</h2>
+            <p>Teste, ob die Buttons gut auf Touch reagieren:</p>
+            <button class="touch-target" onclick="alert('Button 1 funktioniert!')">Spiel 1</button>
+            <button class="touch-target" onclick="alert('Button 2 funktioniert!')">Spiel 2</button>
+            <button class="touch-target" onclick="alert('Button 3 funktioniert!')">Spiel 3</button>
+        </div>
+
+        <div class="test-section">
+            <h2>🔤 Buchstaben-Berg Simulation</h2>
+            <p>Tippe auf einen Buchstaben und dann auf ein Feld:</p>
+            <div style="margin-bottom: 20px;">
+                <h3>Wort-Felder:</h3>
+                <div class="word-slot" onclick="selectSlot(0)"></div>
+                <div class="word-slot" onclick="selectSlot(1)"></div>
+                <div class="word-slot" onclick="selectSlot(2)"></div>
+                <div class="word-slot" onclick="selectSlot(3)"></div>
+            </div>
+            
+            <div>
+                <h3>Verfügbare Buchstaben:</h3>
+                <div class="letter-tile" onclick="selectLetter('B')">B</div>
+                <div class="letter-tile" onclick="selectLetter('E')">E</div>
+                <div class="letter-tile" onclick="selectLetter('R')">R</div>
+                <div class="letter-tile" onclick="selectLetter('G')">G</div>
+                <div class="letter-tile" onclick="selectLetter('X')">X</div>
+                <div class="letter-tile" onclick="selectLetter('Y')">Y</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📱 Mobile Infos</h2>
+            <p><strong>Screen Width:</strong> <span id="screenWidth"></span>px</p>
+            <p><strong>Touch Support:</strong> <span id="touchSupport"></span></p>
+            <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
+        </div>
+    </div>
+
+    <script>
+        let selectedLetter = null;
+        let wordSlots = ['', '', '', ''];
+
+        function selectLetter(letter) {
+            selectedLetter = letter;
+            document.querySelectorAll('.letter-tile').forEach(tile => {
+                tile.style.backgroundColor = tile.textContent === letter ? '#f97316' : '#fbbf24';
+            });
+            alert(`Buchstabe ${letter} ausgewählt! Jetzt auf ein Feld tippen.`);
+        }
+
+        function selectSlot(index) {
+            if (selectedLetter) {
+                wordSlots[index] = selectedLetter;
+                document.querySelectorAll('.word-slot')[index].textContent = selectedLetter;
+                document.querySelectorAll('.word-slot')[index].style.backgroundColor = '#10b981';
+                selectedLetter = null;
+                document.querySelectorAll('.letter-tile').forEach(tile => {
+                    tile.style.backgroundColor = '#fbbf24';
+                });
+                
+                if (wordSlots.join('') === 'BERG') {
+                    setTimeout(() => alert('🎉 Perfekt! Du hast BERG richtig gebildet!'), 100);
+                }
+            } else {
+                alert('Wähle zuerst einen Buchstaben!');
+            }
+        }
+
+        // Display device info
+        document.getElementById('screenWidth').textContent = window.innerWidth;
+        document.getElementById('touchSupport').textContent = 'ontouchstart' in window ? 'Ja' : 'Nein';
+        document.getElementById('userAgent').textContent = navigator.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop';
+    </script>
+</body>
+</html>

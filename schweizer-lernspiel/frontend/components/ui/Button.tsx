@@ -45,13 +45,22 @@ const Button: React.FC<ButtonProps> = ({
     lg: 'w-6 h-6',
   };
   
+  const { 
+    onAnimationStart, 
+    onAnimationEnd, 
+    onDragStart,
+    onDragEnd,
+    onDrag,
+    ...buttonProps 
+  } = props;
+  
   return (
     <motion.button
       whileHover={{ scale: disabled || isLoading ? 1 : 1.05 }}
       whileTap={{ scale: disabled || isLoading ? 1 : 0.95 }}
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
       disabled={disabled || isLoading}
-      {...props}
+      {...buttonProps}
     >
       {isLoading ? (
         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
