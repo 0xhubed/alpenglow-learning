@@ -52,7 +52,7 @@ const games = [
     icon: Map,
     color: 'from-red-400 to-red-600',
     bgColor: 'bg-red-50',
-    available: true,
+    available: false,
   },
   {
     id: 'jahreszeiten',

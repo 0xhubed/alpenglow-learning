@@ -189,6 +189,9 @@ const useGameStore = create<GameStore>()(
         set((state) => {
           if (!state.user) return state;
           
+          // Don't add guest accounts to leaderboard
+          if (state.user.avatar.id === 'gast') return state;
+          
           const existingIndex = state.leaderboard.findIndex(entry => entry.id === state.user!.id);
           const newEntry: LeaderboardEntry = {
             id: state.user.id,
@@ -215,10 +218,11 @@ const useGameStore = create<GameStore>()(
       
       cleanupLeaderboard: () =>
         set((state) => {
-          // Filter out entries with invalid avatar names (test data)
+          // Filter out entries with invalid avatar names (test data) and guest accounts
           const validAvatarNames = AVATARS.map(avatar => avatar.name);
           const cleanLeaderboard = state.leaderboard.filter(entry => 
-            validAvatarNames.includes(entry.username) || validAvatarNames.includes(entry.avatar.name)
+            (validAvatarNames.includes(entry.username) || validAvatarNames.includes(entry.avatar.name)) &&
+            entry.avatar.id !== 'gast' // Exclude guest accounts from leaderboard
           );
           
           return { leaderboard: cleanLeaderboard };

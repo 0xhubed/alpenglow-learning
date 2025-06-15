@@ -23,7 +23,6 @@ export default function ProfilPage() {
   
   const [selectedAvatarId, setSelectedAvatarId] = useState<string>(user?.avatar?.id || '');
   const [username, setUsername] = useState(user?.username || '');
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   useEffect(() => {
     // Clean up leaderboard on component mount
@@ -82,9 +81,6 @@ export default function ProfilPage() {
     router.push('/spiele');
   };
 
-  const toggleLeaderboard = () => {
-    setShowLeaderboard(!showLeaderboard);
-  };
 
   // No need to check for user - anyone can select an avatar
 
@@ -137,24 +133,24 @@ export default function ProfilPage() {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-3 gap-2 sm:gap-4 mb-8 px-4 sm:px-0"
         >
-          <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
-            <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400 mx-auto mb-2" />
-            <div className="text-lg sm:text-2xl font-bold text-white">{user?.totalPoints || 0}</div>
-            <div className="text-xs sm:text-base text-white/80">Punkte</div>
-          </Card>
-          
-          <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
-            <GamepadIcon className="w-6 h-6 sm:w-8 sm:h-8 text-green-400 mx-auto mb-2" />
-            <div className="text-lg sm:text-2xl font-bold text-white">{user?.gamesCompleted || 0}</div>
-            <div className="text-xs sm:text-base text-white/80">Spiele</div>
-          </Card>
-          
-          <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
-            <Star className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 mx-auto mb-2" />
-            <div className="text-lg sm:text-2xl font-bold text-white">#{userRank || '-'}</div>
-            <div className="text-xs sm:text-base text-white/80">Rang</div>
-          </Card>
-        </motion.div>
+              <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
+                <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400 mx-auto mb-2" />
+                <div className="text-lg sm:text-2xl font-bold text-white">{user?.totalPoints || 0}</div>
+                <div className="text-xs sm:text-base text-white/80">Punkte</div>
+              </Card>
+              
+              <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
+                <GamepadIcon className="w-6 h-6 sm:w-8 sm:h-8 text-green-400 mx-auto mb-2" />
+                <div className="text-lg sm:text-2xl font-bold text-white">{user?.gamesCompleted || 0}</div>
+                <div className="text-xs sm:text-base text-white/80">Spiele</div>
+              </Card>
+              
+              <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
+                <Star className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 mx-auto mb-2" />
+                <div className="text-lg sm:text-2xl font-bold text-white">#{userRank || '-'}</div>
+                <div className="text-xs sm:text-base text-white/80">Rang</div>
+              </Card>
+            </motion.div>
 
 
         {/* Avatar Selection - Main Focus */}
@@ -291,14 +287,6 @@ export default function ProfilPage() {
             
             {/* Secondary Actions */}
             <div className="flex flex-col sm:flex-row justify-center gap-3">
-              <Button
-                onClick={toggleLeaderboard}
-                variant="success"
-                className="w-full sm:w-auto bg-white/20 text-white border-white/30 hover:bg-white/30"
-              >
-                {showLeaderboard ? '📋 Top 5 verstecken' : '🏆 Top 5 anzeigen'}
-              </Button>
-              
               {/* Debug button - only show if there's invalid data */}
               {hasInvalidData && (
                 <Button
@@ -330,58 +318,64 @@ export default function ProfilPage() {
           </div>
         </motion.div>
 
-        {/* Leaderboard */}
-        <AnimatePresence>
-          {showLeaderboard && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
-            >
-              <Card className="bg-white/20 backdrop-blur-sm border-white/30 mx-4 sm:mx-0">
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-6 text-center">🏆 Top 5</h3>
-                <div className="space-y-3">
-                  {displayLeaderboard.map((entry, index) => (
-                    <motion.div
-                      key={entry.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className={`flex items-center p-3 sm:p-4 rounded-lg ${
-                        entry.id === user?.id 
-                          ? 'bg-yellow-400/30 border-2 border-yellow-400' 
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      {/* Rank */}
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white font-bold text-base sm:text-lg mr-3 sm:mr-4">
-                        {index + 1}
-                      </div>
-                      
-                      {/* Avatar */}
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${entry.avatar.color} flex items-center justify-center text-lg sm:text-xl mr-3 sm:mr-4`}>
-                        {entry.avatar.emoji}
-                      </div>
-                      
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="text-base sm:text-lg font-bold text-white truncate">{entry.username}</div>
-                        <div className="text-xs sm:text-sm text-white/80">{entry.gamesCompleted} Spiele</div>
-                      </div>
-                      
-                      {/* Points */}
-                      <div className="text-right">
-                        <div className="text-lg sm:text-xl font-bold text-yellow-400">{entry.totalPoints}</div>
-                        <div className="text-xs sm:text-sm text-white/80">Punkte</div>
-                      </div>
-                    </motion.div>
-                  ))}
+        {/* Top 5 Leaderboard - Below Selected Animal */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="px-4 sm:px-0"
+        >
+          <Card className="bg-white/20 backdrop-blur-sm border-white/30">
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-6 text-center">🏆 Top 5</h3>
+            <div className="space-y-3">
+              {displayLeaderboard.length > 0 ? (
+                displayLeaderboard.map((entry, index) => (
+                  <motion.div
+                    key={entry.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                    className={`flex items-center p-3 sm:p-4 rounded-lg ${
+                      entry.id === user?.id 
+                        ? 'bg-yellow-400/30 border-2 border-yellow-400' 
+                        : 'bg-white/10'
+                    }`}
+                  >
+                    {/* Rank */}
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white font-bold text-base sm:text-lg mr-3 sm:mr-4">
+                      {index + 1}
+                    </div>
+                    
+                    {/* Avatar */}
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${entry.avatar.color} flex items-center justify-center text-lg sm:text-xl mr-3 sm:mr-4`}>
+                      {entry.avatar.emoji}
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-base sm:text-lg font-bold text-white truncate">{entry.username}</div>
+                      <div className="text-xs sm:text-sm text-white/80">{entry.gamesCompleted} Spiele</div>
+                    </div>
+                    
+                    {/* Points */}
+                    <div className="text-right">
+                      <div className="text-lg sm:text-xl font-bold text-yellow-400">{entry.totalPoints}</div>
+                      <div className="text-xs sm:text-sm text-white/80">Punkte</div>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-3">🌟</div>
+                  <p className="text-white/80 text-sm">
+                    Spiele ein paar Runden,<br />
+                    um die Rangliste zu füllen!
+                  </p>
                 </div>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              )}
+            </div>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );

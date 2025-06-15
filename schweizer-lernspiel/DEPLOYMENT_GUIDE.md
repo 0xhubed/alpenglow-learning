@@ -274,4 +274,67 @@ module.exports = {
 # 4. Perfect for Swiss schools with limited connectivity
 ```
 
+---
+
+## 🗑️ **Removing App from Vercel**
+
+### **If you need to remove the app from Vercel:**
+
+#### **Option 1: Delete via Vercel Dashboard (Recommended)**
+1. Go to [vercel.com/dashboard](https://vercel.com/dashboard)
+2. Find your project: `schweizer-lernspiel`
+3. Click on the project name
+4. Go to **Settings** → **General**
+5. Scroll down to **"Delete Project"**
+6. Type the project name to confirm
+7. Click **"Delete"**
+
+#### **Option 2: Delete via Vercel CLI**
+```bash
+# List all your projects
+vercel list
+
+# Remove the project (replace with your actual project name)
+vercel remove schweizer-lernspiel
+
+# Confirm deletion when prompted
+```
+
+#### **Option 3: Complete Cleanup**
+```bash
+# Remove from Vercel
+vercel remove schweizer-lernspiel
+
+# Remove local Vercel configuration
+rm -rf .vercel
+
+# Remove from GitHub (if you want to delete the repo too)
+# WARNING: This deletes your entire repository
+# gh repo delete yourusername/schweizer-lernspiel
+
+# Or just unlink from Vercel while keeping GitHub repo
+# This stops auto-deployments but keeps your code
+```
+
+### **What happens when you delete:**
+- ✅ **App stops being accessible** - URLs return 404
+- ✅ **All deployments removed** - Preview and production
+- ✅ **Analytics data deleted** - Performance metrics cleared
+- ✅ **Custom domains released** - Can be used elsewhere
+- ✅ **Environment variables removed** - All secrets deleted
+- ❌ **Local code unaffected** - Your project files remain safe
+
+### **Before deleting:**
+```bash
+# Backup important data if needed
+# Download analytics data from Vercel dashboard
+# Save any environment variables you might need later
+vercel env ls > env-backup.txt
+
+# Export project settings
+vercel project ls > project-backup.txt
+```
+
+---
+
 This focused deployment guide will help you get your Swiss learning game live on Vercel quickly and efficiently!
