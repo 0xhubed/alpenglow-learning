@@ -123,7 +123,7 @@ export default function ProfilPage() {
             Leo, Lynn, Elia, Nean, Lia, Noena oder Gast?
           </p>
           <p className="text-sm sm:text-lg text-white/70">
-            Eltern können "Gast" wählen um die App zu erkunden
+            Eltern können &quot;Gast&quot; wählen um die App zu erkunden
           </p>
         </motion.div>
 
@@ -165,7 +165,7 @@ export default function ProfilPage() {
                 🎯 Tier-Auswahl
               </h3>
               <p className="text-sm sm:text-lg text-white/90">
-                Klicke auf dein Lieblingstier oder wähle "Gast" als Elternteil
+                Klicke auf dein Lieblingstier oder wähle &quot;Gast&quot; als Elternteil
               </p>
             </div>
             

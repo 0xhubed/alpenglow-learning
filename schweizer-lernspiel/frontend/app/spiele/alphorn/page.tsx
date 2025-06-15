@@ -536,11 +536,11 @@ export default function AlphornMelodie() {
             }`}>
               {isCorrect ? (
                 <>
-                  🎉 Perfekt gespielt! Das war "{currentPattern?.name}"
+                  🎉 Perfekt gespielt! Das war &quot;{currentPattern?.name}&quot;
                 </>
               ) : (
                 <>
-                  💪 Nicht ganz richtig! Versuch es nochmal mit "{currentPattern?.name}"
+                  💪 Nicht ganz richtig! Versuch es nochmal mit &quot;{currentPattern?.name}&quot;
                 </>
               )}
             </div>

@@ -34,7 +34,7 @@ export interface GameState {
 }
 
 export interface GameConfig {
-  gameType: 'BUCHSTABEN' | 'ZAHLEN' | 'NATUR' | 'MUSIK';
+  gameType: 'BUCHSTABEN' | 'ZAHLEN' | 'NATUR' | 'MUSIK' | 'ALPHORN' | 'JAHRESZEITEN' | 'KANTONE';
   maxLives: number;
   basePoints: number;
   comboMultiplier: number;
