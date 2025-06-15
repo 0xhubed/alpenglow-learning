@@ -320,7 +320,7 @@ For issues, questions, or contributions:
 
 ---
 
-**Build by Daniel in collaboration with Claude AI** 🤖  
+**Crafted by Daniel using advanced AI coding tools** 🤖  
 **Made with ❤️ for Swiss education** 🇨🇭
 
 *Spiel für Erstklässler - A magical learning adventure in the Swiss Alps!*

@@ -186,7 +186,7 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm border border-purple-300/30 rounded-full px-4 py-2">
               <Award className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-gray-300">Build by Daniel in collaboration with Claude AI</span>
+              <span className="text-sm text-gray-300">Crafted by Daniel using advanced AI coding tools</span>
             </div>
           </motion.div>
         </motion.div>
