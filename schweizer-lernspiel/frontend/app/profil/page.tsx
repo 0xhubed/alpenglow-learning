@@ -119,8 +119,16 @@ export default function ProfilPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">Hallo! Wähle dein Tier!</h1>
-          <p className="text-lg sm:text-xl text-white/80">Leo, Lynn, Elia, Nean, Lia oder Noena - welches bist du?</p>
+          <div className="text-6xl sm:text-8xl mb-4">🎭</div>
+          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4 leading-tight">
+            Wähle dein Tier!
+          </h1>
+          <p className="text-lg sm:text-xl text-white/90 mb-2">
+            Leo, Lynn, Elia, Nean, Lia, Noena oder Gast?
+          </p>
+          <p className="text-sm sm:text-lg text-white/70">
+            Eltern können "Gast" wählen um die App zu erkunden
+          </p>
         </motion.div>
 
         {/* Current Stats */}
@@ -149,80 +157,175 @@ export default function ProfilPage() {
         </motion.div>
 
 
-        {/* Avatar Selection */}
+        {/* Avatar Selection - Main Focus */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 px-4 sm:px-0"
         >
-          <Card className="bg-white/20 backdrop-blur-sm border-white/30">
-            <h3 className="text-lg sm:text-xl font-bold text-white mb-6">Welches Tier hat deinen Namen?</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-              {availableAvatars.map((avatar) => (
+          <Card className="bg-white/30 backdrop-blur-sm border-white/50 shadow-2xl">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                🎯 Tier-Auswahl
+              </h3>
+              <p className="text-sm sm:text-lg text-white/90">
+                Klicke auf dein Lieblingstier oder wähle "Gast" als Elternteil
+              </p>
+            </div>
+            
+            {/* Animals Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+              {availableAvatars.filter(avatar => avatar.id !== 'gast').map((avatar) => (
                 <motion.div
                   key={avatar.id}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.08, y: -5 }}
                   whileTap={{ scale: 0.95 }}
                   className={`cursor-pointer transition-all duration-300 ${
-                    selectedAvatarId === avatar.id ? 'ring-4 ring-yellow-400' : ''
+                    selectedAvatarId === avatar.id ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-purple-500' : ''
                   }`}
                   onClick={() => {
                     setSelectedAvatarId(avatar.id);
-                    setUsername(avatar.name); // Automatically set username to avatar name
+                    setUsername(avatar.name);
                   }}
                 >
-                  <Card className={`text-center ${
+                  <Card className={`text-center h-full ${
                     selectedAvatarId === avatar.id 
-                      ? 'bg-white/30 border-yellow-400' 
-                      : 'bg-white/10 border-white/20 hover:bg-white/20'
+                      ? 'bg-yellow-200/90 border-yellow-400 border-2 shadow-lg' 
+                      : 'bg-white/15 border-white/30 hover:bg-white/25 hover:border-white/50'
                   }`}>
-                    <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center text-2xl sm:text-4xl mx-auto mb-3`}>
+                    <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center text-3xl sm:text-5xl mx-auto mb-4 shadow-lg`}>
                       {avatar.emoji}
                     </div>
-                    <h4 className="text-base sm:text-lg font-bold text-white mb-2">{avatar.name}</h4>
-                    <p className="text-xs sm:text-sm text-white/80 hidden sm:block">{avatar.description}</p>
+                    <h4 className={`text-lg sm:text-xl font-bold mb-2 ${
+                      selectedAvatarId === avatar.id ? 'text-gray-800' : 'text-white'
+                    }`}>
+                      {avatar.name}
+                    </h4>
+                    <p className={`text-xs sm:text-sm mb-2 ${
+                      selectedAvatarId === avatar.id ? 'text-gray-700' : 'text-white/80'
+                    }`}>
+                      {avatar.description}
+                    </p>
                   </Card>
                 </motion.div>
               ))}
             </div>
+            
+            {/* Guest Option - Separate and Special */}
+            <div className="border-t border-white/30 pt-6">
+              <p className="text-center text-white/90 mb-4 text-sm sm:text-base">
+                👨‍👩‍👧‍👦 <strong>Für Eltern und Besucher:</strong>
+              </p>
+              {(() => {
+                const guestAvatar = availableAvatars.find(avatar => avatar.id === 'gast');
+                return guestAvatar ? (
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`cursor-pointer transition-all duration-300 max-w-sm mx-auto ${
+                      selectedAvatarId === guestAvatar.id ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-purple-500' : ''
+                    }`}
+                    onClick={() => {
+                      setSelectedAvatarId(guestAvatar.id);
+                      setUsername(guestAvatar.name);
+                    }}
+                  >
+                    <Card className={`text-center ${
+                      selectedAvatarId === guestAvatar.id 
+                        ? 'bg-yellow-200/90 border-yellow-400 border-2 shadow-lg' 
+                        : 'bg-gray-500/20 border-gray-300/40 hover:bg-gray-400/30'
+                    }`}>
+                      <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br ${guestAvatar.color} flex items-center justify-center text-2xl sm:text-3xl mx-auto mb-3 shadow-lg`}>
+                        {guestAvatar.emoji}
+                      </div>
+                      <h4 className={`text-base sm:text-lg font-bold mb-2 ${
+                        selectedAvatarId === guestAvatar.id ? 'text-gray-800' : 'text-white'
+                      }`}>
+                        {guestAvatar.name}
+                      </h4>
+                      <p className={`text-xs sm:text-sm ${
+                        selectedAvatarId === guestAvatar.id ? 'text-gray-700' : 'text-white/80'
+                      }`}>
+                        {guestAvatar.description}
+                      </p>
+                    </Card>
+                  </motion.div>
+                ) : null;
+              })()}
+            </div>
           </Card>
         </motion.div>
 
-        {/* Leaderboard Toggle */}
+        {/* Action Buttons - Prominent */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center px-4 sm:px-0"
         >
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button
-              onClick={toggleLeaderboard}
-              variant="success"
-              className="w-full sm:w-auto"
+          <div className="space-y-4">
+            {/* Main Action Button - Most Prominent */}
+            <motion.div
+              whileHover={selectedAvatarId ? { scale: 1.05 } : {}}
+              whileTap={selectedAvatarId ? { scale: 0.95 } : {}}
             >
-              {showLeaderboard ? 'Top 5 verstecken' : 'Top 5 anzeigen'}
-            </Button>
-            <Button
-              onClick={handleSaveProfile}
-              variant="primary"
-              disabled={!selectedAvatarId}
-              className="w-full sm:w-auto"
-            >
-              {selectedAvatarId ? 'Spielen!' : 'Wähle zuerst dein Tier'}
-            </Button>
-            
-            {/* Debug button - only show if there's invalid data */}
-            {hasInvalidData && (
               <Button
-                onClick={() => {
-                  resetData();
-                  window.location.reload();
-                }}
-                variant="secondary"
-                className="w-full sm:w-auto bg-red-500 text-white hover:bg-red-600"
+                onClick={handleSaveProfile}
+                variant="primary"
+                disabled={!selectedAvatarId}
+                className={`w-full sm:w-auto px-8 py-4 text-xl sm:text-2xl font-bold shadow-xl ${
+                  selectedAvatarId 
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-none'
+                    : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                }`}
               >
-                🔧 Daten zurücksetzen
+                {selectedAvatarId ? (
+                  <span className="flex items-center gap-3">
+                    🎮 Jetzt Spielen! 
+                    {selectedAvatarId !== 'gast' && <span className="text-lg">🦁🦄🐺🐸🐱🦋</span>}
+                  </span>
+                ) : (
+                  '👆 Wähle zuerst dein Tier'
+                )}
               </Button>
+            </motion.div>
+            
+            {/* Secondary Actions */}
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <Button
+                onClick={toggleLeaderboard}
+                variant="success"
+                className="w-full sm:w-auto bg-white/20 text-white border-white/30 hover:bg-white/30"
+              >
+                {showLeaderboard ? '📋 Top 5 verstecken' : '🏆 Top 5 anzeigen'}
+              </Button>
+              
+              {/* Debug button - only show if there's invalid data */}
+              {hasInvalidData && (
+                <Button
+                  onClick={() => {
+                    resetData();
+                    window.location.reload();
+                  }}
+                  variant="secondary"
+                  className="w-full sm:w-auto bg-red-500 text-white hover:bg-red-600"
+                >
+                  🔧 Daten zurücksetzen
+                </Button>
+              )}
+            </div>
+            
+            {/* Selected Animal Display */}
+            {selectedAvatarId && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mt-4 p-4 bg-white/20 rounded-lg backdrop-blur-sm inline-block"
+              >
+                <p className="text-white text-sm sm:text-base">
+                  ✅ <strong>Ausgewählt:</strong> {username}
+                  {selectedAvatarId === 'gast' && ' (Eltern-Modus)'}
+                </p>
+              </motion.div>
             )}
           </div>
         </motion.div>

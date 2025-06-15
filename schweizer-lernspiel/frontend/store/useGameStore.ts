@@ -80,6 +80,13 @@ const AVATARS: Avatar[] = [
     emoji: '🦋',
     color: 'from-cyan-400 to-blue-500',
     description: 'Der bunte Schmetterling tanzt durch die Luft!'
+  },
+  {
+    id: 'gast',
+    name: 'Gast',
+    emoji: '👨‍👩‍👧‍👦',
+    color: 'from-gray-400 to-slate-500',
+    description: 'Für Eltern und Besucher - schauen Sie sich die App an!'
   }
 ];
 

@@ -415,47 +415,73 @@ export default function KantonePuzzle() {
         </p>
       </motion.div>
 
-      {/* Swiss Map (Simplified) */}
+      {/* Swiss Map (Simplified SVG) */}
       <div className="flex justify-center mb-8">
-        <div className="relative bg-white/90 backdrop-blur-sm rounded-lg p-6 w-full max-w-lg border-2 border-gray-300">
+        <div className="relative bg-white/90 backdrop-blur-sm rounded-lg p-6 w-full max-w-2xl border-2 border-gray-300">
           <h3 className="text-center text-lg font-bold text-gray-800 mb-4">🗺️ Schweizer Karte</h3>
           <p className="text-center text-sm text-gray-600 mb-4">Klicke auf ein Feld um den gewählten Kanton zu platzieren</p>
           
-          {/* Map regions with better visibility */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {getFilteredCantons().map((canton, index) => {
-              const piece = puzzlePieces.find(p => p.canton.id === canton.id);
-              return (
-                <motion.div
-                  key={canton.id}
-                  onClick={() => handleMapClick(canton.id)}
-                  className={`h-24 sm:h-28 border-4 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${
-                    piece?.isPlaced 
-                      ? `${canton.color} border-green-500 text-white shadow-lg` 
-                      : selectedPiece 
-                        ? 'bg-blue-50 border-blue-400 border-dashed hover:bg-blue-100' 
-                        : 'bg-gray-100 border-gray-400 border-dashed hover:bg-gray-200'
-                  }`}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  animate={{
-                    borderColor: selectedPiece ? '#3b82f6' : piece?.isPlaced ? '#10b981' : '#9ca3af'
-                  }}
-                >
-                  {piece?.isPlaced ? (
-                    <div className="text-center">
-                      <div className="text-3xl mb-1">{canton.shape}</div>
-                      <p className="text-xs font-bold">{canton.name}</p>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <div className="text-3xl mb-1">📍</div>
-                      <p className="text-xs text-gray-600 font-medium">Platz {index + 1}</p>
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
+          {/* Simple Switzerland Map Grid */}
+          <div className="relative w-full bg-gradient-to-b from-blue-50 via-white to-green-50 rounded-lg border-2 border-gray-300 p-6">
+            {/* Map Header */}
+            <div className="text-center mb-4">
+              <div className="text-2xl mb-2">🇨🇭</div>
+              <h4 className="text-lg font-bold text-gray-800">Schweiz Regionen</h4>
+              <p className="text-sm text-gray-600">Klicke auf eine Region um deinen Kanton zu platzieren</p>
+            </div>
+            
+            {/* Simple Switzerland Shape with Regions */}
+            <div className="relative max-w-md mx-auto">
+              {/* Switzerland Background Shape */}
+              <div className="relative bg-gradient-to-br from-blue-100 to-green-100 rounded-2xl p-4 border-2 border-blue-300" 
+                   style={{ aspectRatio: '3/2' }}>
+                
+                {/* Simple Grid Layout - Works with any cantons */}
+                <div className="grid grid-cols-2 gap-3 h-full">
+                  {getFilteredCantons().map((canton, index) => {
+                    const piece = puzzlePieces.find(p => p.canton.id === canton.id);
+                    const regionLabels = ['NW', 'NO', 'SW', 'SO'];
+                    
+                    return (
+                      <motion.div
+                        key={canton.id}
+                        onClick={() => handleMapClick(canton.id)}
+                        className={`rounded-lg border-2 cursor-pointer transition-all duration-200 flex flex-col items-center justify-center text-center p-3 ${
+                          piece?.isPlaced 
+                            ? `${canton.color} border-green-500 text-white shadow-lg` 
+                            : selectedPiece 
+                              ? 'bg-blue-50 border-blue-400 border-dashed hover:bg-blue-100' 
+                              : 'bg-white/80 border-gray-300 border-dashed hover:bg-gray-50'
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {piece?.isPlaced ? (
+                          <>
+                            <div className="text-2xl mb-1">{canton.shape}</div>
+                            <p className="text-xs font-bold">{canton.name}</p>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-2xl mb-1">📍</div>
+                            <p className="text-xs font-medium text-gray-600">
+                              {regionLabels[index] || `Platz ${index + 1}`}
+                            </p>
+                          </>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+                
+                {/* Decorative Elements */}
+                <div className="absolute -top-2 -right-2 text-lg">🏔️</div>
+                <div className="absolute -bottom-2 -left-2 text-lg">🌊</div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs text-gray-500 font-medium opacity-50">
+                  SCHWEIZ
+                </div>
+              </div>
+            </div>
           </div>
           
           {/* Map legend */}

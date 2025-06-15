@@ -406,57 +406,73 @@ export default function JahreszeitenRad() {
         </p>
       </motion.div>
 
-      {/* Seasons Wheel */}
+      {/* Seasons Cross - Simple and Clear Layout */}
       <div className="flex justify-center mb-8">
-        <div className="relative w-80 h-80 rounded-full border-4 border-white bg-white/80 backdrop-blur-sm">
-          {SEASONS.map((season, index) => {
-            // Position seasons in quadrants: top, right, bottom, left
-            const positions = [
-              { top: '10px', left: '50%', transform: 'translateX(-50%)' }, // Spring - top
-              { top: '50%', right: '10px', transform: 'translateY(-50%)' }, // Summer - right  
-              { bottom: '10px', left: '50%', transform: 'translateX(-50%)' }, // Autumn - bottom
-              { top: '50%', left: '10px', transform: 'translateY(-50%)' }, // Winter - left
-            ];
-            
-            return (
-              <motion.div
-                key={season.id}
-                onClick={() => handleSeasonClick(season)}
-                className={`absolute w-20 h-20 sm:w-24 sm:h-24 ${season.color} rounded-full flex flex-col items-center justify-center cursor-pointer shadow-lg z-10`}
-                style={positions[index]}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                animate={{
-                  rotateZ: wheelRotation === index * 90 ? 360 : 0,
-                }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="text-xl sm:text-2xl">{season.emoji}</div>
-                <p className="text-white text-xs font-bold text-center">{season.name}</p>
-              </motion.div>
-            );
-          })}
-          
-          {/* Center circle with seasonal info */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br from-blue-100 to-green-100 rounded-full flex flex-col items-center justify-center border-4 border-white shadow-lg">
-            <div className="text-2xl sm:text-3xl">🌍</div>
+        <div className="relative w-80 h-80 sm:w-96 sm:h-96">
+          {/* Center Hub */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-100 to-green-100 rounded-full flex flex-col items-center justify-center border-4 border-white shadow-lg z-20">
+            <div className="text-xl sm:text-2xl">🌍</div>
             <p className="text-xs font-bold text-gray-700">Jahreszeiten</p>
           </div>
           
-          {/* Decorative lines connecting center to seasons */}
-          <div className="absolute inset-0">
-            {[0, 90, 180, 270].map((angle, index) => (
-              <div
-                key={index}
-                className="absolute w-0.5 h-20 bg-gray-300"
-                style={{
-                  top: '50%',
-                  left: '50%',
-                  transformOrigin: 'bottom center',
-                  transform: `translateX(-50%) translateY(-100%) rotate(${angle}deg)`,
-                }}
-              />
-            ))}
+          {/* Spring - Top (North) */}
+          <motion.div
+            onClick={() => handleSeasonClick(SEASONS.find(s => s.id === 'spring')!)}
+            className="absolute top-4 left-1/2 transform -translate-x-1/2 w-20 h-20 sm:w-24 sm:h-24 bg-green-400 rounded-full flex flex-col items-center justify-center cursor-pointer shadow-lg z-10"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="text-xl sm:text-2xl">🌸</div>
+            <p className="text-white text-xs font-bold text-center">Frühling</p>
+          </motion.div>
+          
+          {/* Summer - Right (East) */}
+          <motion.div
+            onClick={() => handleSeasonClick(SEASONS.find(s => s.id === 'summer')!)}
+            className="absolute top-1/2 left-[calc(50%+80px)] sm:left-[calc(50%+96px)] transform -translate-y-1/2 w-20 h-20 sm:w-24 sm:h-24 bg-yellow-400 rounded-full flex flex-col items-center justify-center cursor-pointer shadow-lg z-10"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="text-xl sm:text-2xl">☀️</div>
+            <p className="text-white text-xs font-bold text-center">Sommer</p>
+          </motion.div>
+          
+          {/* Autumn - Bottom (South) */}
+          <motion.div
+            onClick={() => handleSeasonClick(SEASONS.find(s => s.id === 'autumn')!)}
+            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-20 h-20 sm:w-24 sm:h-24 bg-orange-400 rounded-full flex flex-col items-center justify-center cursor-pointer shadow-lg z-10"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="text-xl sm:text-2xl">🍂</div>
+            <p className="text-white text-xs font-bold text-center">Herbst</p>
+          </motion.div>
+          
+          {/* Winter - Left (West) */}
+          <motion.div
+            onClick={() => handleSeasonClick(SEASONS.find(s => s.id === 'winter')!)}
+            className="absolute top-1/2 left-4 transform -translate-y-1/2 w-20 h-20 sm:w-24 sm:h-24 bg-blue-400 rounded-full flex flex-col items-center justify-center cursor-pointer shadow-lg z-10"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="text-xl sm:text-2xl">❄️</div>
+            <p className="text-white text-xs font-bold text-center">Winter</p>
+          </motion.div>
+          
+          {/* Connecting Lines for Visual Clarity */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Vertical line (North-South) */}
+            <div className="absolute top-16 bottom-16 left-1/2 w-0.5 bg-gray-300/50 transform -translate-x-1/2"></div>
+            {/* Horizontal line (East-West) */}
+            <div className="absolute top-1/2 left-16 right-[calc(50%-80px)] sm:right-[calc(50%-96px)] h-0.5 bg-gray-300/50 transform -translate-y-1/2"></div>
+          </div>
+          
+          {/* Compass Labels */}
+          <div className="absolute inset-0 pointer-events-none text-gray-500 text-xs font-medium">
+            <div className="absolute top-1 left-1/2 transform -translate-x-1/2">N</div>
+            <div className="absolute top-1/2 right-1 transform -translate-y-1/2">O</div>
+            <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">S</div>
+            <div className="absolute top-1/2 left-1 transform -translate-y-1/2">W</div>
           </div>
         </div>
       </div>

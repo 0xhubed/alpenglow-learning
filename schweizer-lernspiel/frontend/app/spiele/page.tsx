@@ -1,11 +1,12 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/ui/Card';
 import { BookOpen, Calculator, Trees, Music, ArrowLeft, User, Map, Compass } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { useAudio } from '@/hooks/useAudio';
+import useGameStore from '@/store/useGameStore';
 
 const games = [
   {
@@ -67,6 +68,7 @@ const games = [
 export default function GamesPage() {
   const router = useRouter();
   const { playSound } = useAudio();
+  const { user } = useGameStore();
 
   const handleGameSelect = (gameId: string, available: boolean) => {
     if (!available) {
@@ -90,6 +92,43 @@ export default function GamesPage() {
   return (
     <div className="min-h-screen p-4 sm:p-8">
       <div className="game-container">
+        {/* Animal Selection Call-to-Action */}
+        <AnimatePresence>
+          {!user && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="mb-8"
+            >
+              <Card className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 border-none text-white shadow-2xl">
+                <div className="text-center">
+                  <div className="text-4xl sm:text-6xl mb-4">🎭</div>
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-3">
+                    Wähle zuerst dein Tier!
+                  </h2>
+                  <p className="text-lg sm:text-xl mb-6 text-white/90">
+                    Leo, Lynn, Elia, Nean, Lia, Noena oder Gast für Eltern
+                  </p>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      variant="primary"
+                      icon={User}
+                      onClick={handleProfile}
+                      className="bg-white text-purple-600 hover:bg-gray-100 text-xl px-8 py-4 font-bold border-none shadow-lg"
+                    >
+                      🦁🦄🐺🐸🐱🦋 Tier wählen
+                    </Button>
+                  </motion.div>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -106,20 +145,27 @@ export default function GamesPage() {
             </Button>
             
             <Button
-              variant="success"
+              variant={user ? "success" : "primary"}
               icon={User}
               onClick={handleProfile}
-              className="w-full sm:w-auto"
+              className={`w-full sm:w-auto ${
+                user 
+                  ? 'bg-green-500 hover:bg-green-600' 
+                  : 'bg-purple-500 hover:bg-purple-600 ring-4 ring-purple-300 ring-offset-2 animate-pulse'
+              }`}
             >
-              Wähle dein Tier!
+              {user ? `✅ ${user.avatar.emoji} ${user.avatar.name}` : '🎭 Wähle dein Tier!'}
             </Button>
           </div>
           
           <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 text-center">
-            Wähle dein Spiel!
+            {user ? `Hallo ${user.avatar.name}! Wähle dein Spiel!` : 'Wähle dein Spiel!'}
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 text-center mt-2">
-            Tippe auf ein Spiel, um zu beginnen
+            {user 
+              ? 'Tippe auf ein Spiel, um zu beginnen' 
+              : 'Wähle zuerst dein Tier, dann kann es losgehen!'
+            }
           </p>
         </motion.div>
 

@@ -12,7 +12,7 @@ export default function Home() {
 
   const handleStartGame = () => {
     playSound('click');
-    router.push('/spiele');
+    router.push('/profil'); // First go to animal selection
   };
 
   return (
@@ -91,9 +91,9 @@ export default function Home() {
             size="lg"
             icon={Play}
             onClick={handleStartGame}
-            className="text-xl px-12 py-6"
+            className="text-xl px-12 py-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
           >
-            Spiel starten
+            🎭 Tier wählen & Spielen
           </Button>
         </motion.div>
 
