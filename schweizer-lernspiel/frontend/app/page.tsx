@@ -12,6 +12,11 @@ export default function Home() {
   const { playSound } = useAudio();
   const { scrollYProgress } = useScroll();
   const y1 = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleStartGame = () => {
     playSound('click');
@@ -20,19 +25,53 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Dynamic Background */}
+      {/* Enhanced Dynamic Background */}
       <div className="absolute inset-0 z-0">
+        {/* Base gradient layers */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-blue-400/10 to-white/20"></div>
         
-        {Array.from({ length: 30 }).map((_, i) => {
-          const randomX = Math.random() * 100;
-          const randomY = Math.random() * 100;
-          const moveDistance = 20 + Math.random() * 40;
+        {/* Floating Clouds */}
+        {isClient && Array.from({ length: 6 }).map((_, i) => {
+          const size = 60 + Math.random() * 80;
+          const startY = 10 + Math.random() * 30;
+          const duration = 25 + Math.random() * 15;
           
           return (
             <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-white rounded-full"
+              key={`cloud-${i}`}
+              className="absolute opacity-20"
+              style={{
+                left: '-100px',
+                top: `${startY}%`,
+                fontSize: `${size}px`,
+              }}
+              animate={{
+                x: ['0vw', '110vw'],
+              }}
+              transition={{
+                duration: duration,
+                repeat: Infinity,
+                ease: "linear",
+                delay: i * 5,
+              }}
+            >
+              ☁️
+            </motion.div>
+          );
+        })}
+        
+        {/* Enhanced Sparkle Particles */}
+        {isClient && Array.from({ length: 25 }).map((_, i) => {
+          const randomX = Math.random() * 100;
+          const randomY = Math.random() * 100;
+          const moveDistance = 15 + Math.random() * 25;
+          const isSpecial = Math.random() > 0.8;
+          
+          return (
+            <motion.div
+              key={`particle-${i}`}
+              className={`absolute ${isSpecial ? 'text-lg' : 'w-2 h-2'} ${isSpecial ? '' : 'bg-white rounded-full'}`}
               style={{
                 left: `${randomX}%`,
                 top: `${randomY}%`,
@@ -40,39 +79,63 @@ export default function Home() {
               animate={{
                 x: [0, moveDistance, -moveDistance, 0],
                 y: [0, -moveDistance, moveDistance, 0],
-                opacity: [0.3, 1, 0.3],
-                scale: [0.5, 1, 0.5],
+                opacity: [0.2, 1, 0.2],
+                scale: [0.5, 1.2, 0.5],
+                rotate: isSpecial ? [0, 360] : 0,
               }}
               transition={{
-                duration: 8 + Math.random() * 4,
+                duration: 6 + Math.random() * 6,
                 repeat: Infinity,
-                delay: Math.random() * 5,
+                delay: Math.random() * 8,
                 ease: "easeInOut",
               }}
-            />
+            >
+              {isSpecial ? (Math.random() > 0.5 ? '✨' : '⭐') : ''}
+            </motion.div>
           );
         })}
 
+        {/* Mountain Silhouettes */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-800/30 to-transparent">
+          <svg className="absolute bottom-0 w-full h-full" viewBox="0 0 1200 200" fill="none">
+            <path 
+              d="M0,200 L0,120 L200,60 L400,100 L600,40 L800,80 L1000,50 L1200,90 L1200,200 Z" 
+              fill="url(#mountainGradient)"
+              opacity="0.6"
+            />
+            <defs>
+              <linearGradient id="mountainGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#1e293b', stopOpacity: 0.8 }} />
+                <stop offset="100%" style={{ stopColor: '#0f172a', stopOpacity: 0.4 }} />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        {/* Ambient light orbs */}
         <motion.div
-          className="absolute w-96 h-96 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full blur-3xl"
+          className="absolute w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
           animate={{
-            x: [0, 100, -50, 0],
-            y: [0, -50, 100, 0],
+            x: [0, 120, -80, 0],
+            y: [0, -60, 80, 0],
+            scale: [1, 1.2, 0.8, 1],
           }}
           transition={{
-            duration: 20,
+            duration: 30,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         />
         <motion.div
-          className="absolute w-64 h-64 bg-gradient-to-r from-pink-500/20 to-cyan-500/20 rounded-full blur-2xl"
+          className="absolute w-80 h-80 bg-gradient-to-r from-pink-500/15 to-yellow-500/15 rounded-full blur-2xl"
+          style={{ right: 0, bottom: '20%' }}
           animate={{
-            x: [0, -80, 120, 0],
-            y: [0, 80, -60, 0],
+            x: [0, -100, 60, 0],
+            y: [0, 60, -40, 0],
+            scale: [0.8, 1.1, 0.9, 0.8],
           }}
           transition={{
-            duration: 25,
+            duration: 35,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -90,103 +153,256 @@ export default function Home() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-8"
         >
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent leading-tight">
-            Schweizer 
-            <br />
-            <span className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-              Abenteuerland
-            </span>
-          </h1>
+          <div className="relative">
+            <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold leading-tight">
+              <motion.span
+                className="block bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent drop-shadow-2xl"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                style={{
+                  textShadow: '0 0 30px rgba(255,255,255,0.5)',
+                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+                }}
+              >
+                Schweizer
+              </motion.span>
+              <motion.span
+                className="block bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                animate={{ 
+                  opacity: 1, 
+                  y: 0, 
+                  scale: 1,
+                }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                style={{
+                  textShadow: '0 0 40px rgba(255,215,0,0.6)',
+                  filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.4))',
+                }}
+              >
+                Abenteuerland
+              </motion.span>
+            </h1>
+            
+            {/* Magical sparkles around title */}
+            <motion.div
+              className="absolute -top-4 -right-4 text-3xl"
+              animate={{ 
+                rotate: [0, 360],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+            >
+              ✨
+            </motion.div>
+            <motion.div
+              className="absolute top-1/2 -left-8 text-2xl"
+              animate={{ 
+                y: [-10, 10, -10],
+                opacity: [0.5, 1, 0.5],
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              🌟
+            </motion.div>
+          </div>
+          
           <motion.p 
-            className="text-lg sm:text-xl text-gray-300 mt-4 max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
+            className="text-xl sm:text-2xl text-blue-100 mt-6 max-w-2xl mx-auto font-medium"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            style={{
+              textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+            }}
           >
-            Spiel für Erstklässler
+            🎮 Ein Lernspiel für Erstklässler 🇨🇭
           </motion.p>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
           className="mb-12 relative"
         >
-          <div className="relative w-80 sm:w-96 h-64 bg-gradient-to-br from-blue-500/20 to-green-500/20 backdrop-blur-sm rounded-3xl border border-white/20 flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500/30 to-white/30 opacity-60" 
+          {/* Enhanced Swiss Adventure Preview */}
+          <div className="relative w-80 sm:w-96 h-64 bg-gradient-to-br from-blue-500/20 to-green-500/20 backdrop-blur-sm rounded-3xl border border-white/30 flex items-center justify-center overflow-hidden shadow-2xl">
+            {/* Animated Swiss landscape background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-white/20 opacity-70" 
                  style={{
                    clipPath: 'polygon(20% 40%, 80% 35%, 90% 45%, 85% 65%, 60% 75%, 40% 70%, 15% 55%)'
                  }}>
             </div>
             
+            {/* Rotating Swiss flag with better animation */}
             <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="text-6xl"
+              animate={{ 
+                rotate: 360,
+                scale: [1, 1.1, 1],
+              }}
+              transition={{ 
+                rotate: { duration: 25, repeat: Infinity, ease: "linear" },
+                scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+              }}
+              className="text-6xl z-10 drop-shadow-lg"
             >
               🇨🇭
             </motion.div>
             
-            {['🦁', '🦄', '🐺', '🐸', '🐱', '🦋'].map((animal, i) => (
+            {/* Enhanced floating characters with trail effects */}
+            {[
+              { emoji: '🦁', color: 'from-orange-400 to-red-500' },
+              { emoji: '🦄', color: 'from-purple-400 to-pink-500' },
+              { emoji: '🐺', color: 'from-blue-400 to-indigo-500' },
+              { emoji: '🐸', color: 'from-green-400 to-emerald-500' },
+              { emoji: '🐱', color: 'from-pink-400 to-rose-500' },
+              { emoji: '🦋', color: 'from-cyan-400 to-blue-500' }
+            ].map((character, i) => (
               <motion.div
                 key={i}
-                className="absolute text-2xl"
+                className="absolute text-2xl drop-shadow-lg"
                 style={{
-                  left: `${20 + (i * 12)}%`,
-                  top: `${30 + (i % 2) * 40}%`,
+                  left: `${25 + (i * 10)}%`,
+                  top: `${35 + (i % 2) * 30}%`,
                 }}
                 animate={{
-                  y: [0, -10, 0],
-                  rotate: [0, 5, -5, 0],
+                  y: [0, -15, 0],
+                  x: [0, Math.sin(i) * 10, 0],
+                  rotate: [0, 10, -10, 0],
+                  scale: [1, 1.2, 1],
                 }}
                 transition={{
-                  duration: 2 + (i * 0.3),
+                  duration: 3 + (i * 0.5),
                   repeat: Infinity,
-                  delay: i * 0.2,
+                  delay: i * 0.3,
+                  ease: "easeInOut",
                 }}
+                whileHover={{ scale: 1.5, rotate: 360 }}
               >
-                {animal}
+                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${character.color} opacity-30 absolute -inset-1 blur-sm`}></div>
+                {character.emoji}
               </motion.div>
             ))}
+            
+            {/* Floating game elements */}
+            <motion.div
+              className="absolute top-2 right-2 text-lg opacity-60"
+              animate={{ rotate: [0, 15, -15, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              📚
+            </motion.div>
+            <motion.div
+              className="absolute bottom-2 left-2 text-lg opacity-60"
+              animate={{ y: [-5, 5, -5] }}
+              transition={{ duration: 2.5, repeat: Infinity }}
+            >
+              🎯
+            </motion.div>
           </div>
 
-          <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-3xl blur-xl opacity-60"></div>
+          {/* Enhanced glow effect */}
+          <div className="absolute -inset-6 bg-gradient-to-r from-blue-500/20 via-purple-500/30 to-pink-500/20 rounded-3xl blur-2xl opacity-80 animate-pulse"></div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
           className="mb-16"
         >
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button
-              size="lg"
-              icon={Play}
-              onClick={handleStartGame}
-              className="text-xl px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-none shadow-2xl relative overflow-hidden group"
+          {/* Enhanced Call-to-Action Button */}
+          <div className="relative">
+            {/* Magical particle ring around button */}
+            <motion.div
+              className="absolute -inset-8 opacity-50"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
             >
-              <span className="relative z-10 flex items-center gap-3">
-                🎭 Tier wählen & Spielen
-                <Sparkles className="w-5 h-5" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-pink-400/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </Button>
-          </motion.div>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-2 h-2 bg-yellow-400 rounded-full"
+                  style={{
+                    left: `${50 + 40 * Math.cos((i * Math.PI) / 4)}%`,
+                    top: `${50 + 40 * Math.sin((i * Math.PI) / 4)}%`,
+                  }}
+                  animate={{
+                    scale: [0.5, 1.5, 0.5],
+                    opacity: [0.3, 1, 0.3],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: i * 0.2,
+                  }}
+                />
+              ))}
+            </motion.div>
+
+            <motion.div
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: "0 20px 60px rgba(147, 51, 234, 0.4)",
+              }}
+              whileTap={{ scale: 0.95 }}
+              className="relative z-10"
+            >
+              <Button
+                size="lg"
+                icon={Play}
+                onClick={handleStartGame}
+                className="text-xl sm:text-2xl px-10 py-5 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 border-none shadow-2xl relative overflow-hidden group font-bold"
+                style={{
+                  backgroundSize: '200% 100%',
+                  animation: 'gradientShift 3s ease infinite',
+                }}
+              >
+                <span className="relative z-10 flex items-center gap-3">
+                  <motion.span
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    🎮
+                  </motion.span>
+                  Profil erstellen & Spielen
+                  <motion.div
+                    animate={{ 
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 180, 360],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Sparkles className="w-6 h-6" />
+                  </motion.div>
+                </span>
+                
+                {/* Animated background effects */}
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-pink-400/30 to-purple-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                {/* Shimmer effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                  animate={{ x: ['-100%', '100%'] }}
+                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 1 }}
+                  style={{ transform: 'skewX(-20deg)' }}
+                />
+              </Button>
+            </motion.div>
+          </div>
+
 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1.0 }}
+            transition={{ duration: 0.8, delay: 1.8 }}
             className="mt-6"
           >
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm border border-purple-300/30 rounded-full px-4 py-2">
               <Award className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-gray-300">Crafted by Daniel using advanced AI coding tools</span>
+              <span className="text-sm text-gray-300">Created by Daniel Huber using advanced AI coding tools</span>
             </div>
           </motion.div>
         </motion.div>

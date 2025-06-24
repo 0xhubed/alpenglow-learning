@@ -407,7 +407,7 @@ export default function AlphornMelodie() {
               <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br ${user.avatar.color} flex items-center justify-center text-sm sm:text-lg`}>
                 {user.avatar.emoji}
               </div>
-              <span className="text-white font-semibold text-xs sm:text-sm hidden sm:block">{user.avatar.name}</span>
+              <span className="text-white font-semibold text-xs sm:text-sm hidden sm:block">{user.username}</span>
             </div>
           )}
           <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-1 sm:py-2">

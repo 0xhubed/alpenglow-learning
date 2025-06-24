@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Trophy } from 'lucide-react';
 import { GameEngine } from '@/lib/game-engine/GameEngine';
 import { GameConfig } from '@/lib/game-engine/types';
 import Card from '@/components/ui/Card';
@@ -513,6 +513,10 @@ export default function SchweizNaturQuiz() {
     router.push('/spiele');
   };
 
+  const handleLeaderboard = () => {
+    router.push('/rangliste');
+  };
+
   const restartGame = () => {
     setIsGameStarted(false);
     setGameCompleted(false);
@@ -631,8 +635,8 @@ export default function SchweizNaturQuiz() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-400 via-blue-300 to-green-500 p-4 game-area">
-      {/* Back Button */}
-      <div className="mb-4">
+      {/* Back Button and Leaderboard */}
+      <div className="mb-4 flex flex-col sm:flex-row gap-3">
         <Button
           variant="secondary"
           icon={ArrowLeft}
@@ -640,6 +644,14 @@ export default function SchweizNaturQuiz() {
           className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
         >
           Zurück zur Übersicht
+        </Button>
+        <Button
+          variant="secondary"
+          icon={Trophy}
+          onClick={handleLeaderboard}
+          className="bg-yellow-400/80 backdrop-blur-sm border-yellow-300/50 text-gray-800 hover:bg-yellow-500/80 font-bold"
+        >
+          🏆 Rangliste
         </Button>
       </div>
 
@@ -656,7 +668,7 @@ export default function SchweizNaturQuiz() {
               <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br ${user.avatar.color} flex items-center justify-center text-sm sm:text-lg`}>
                 {user.avatar.emoji}
               </div>
-              <span className="text-white font-semibold text-xs sm:text-sm hidden sm:block">{user.avatar.name}</span>
+              <span className="text-white font-semibold text-xs sm:text-sm hidden sm:block">{user.username}</span>
             </div>
           )}
           <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-1 sm:py-2">

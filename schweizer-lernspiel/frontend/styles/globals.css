@@ -185,47 +185,56 @@ button, [role="button"], .btn {
   cursor: default;
 }
 
-/* Prevent any accidental text cursor on motion divs */
-.game-area .framer-motion-div {
+/* Fix for contenteditable and form elements that might be causing the cursor */
+[contenteditable], [contenteditable]:focus {
   caret-color: transparent !important;
-  cursor: default;
+  cursor: default !important;
+  user-select: none !important;
 }
 
-/* NUCLEAR OPTION: Hide cursor EVERYWHERE */
-*, *::before, *::after {
-  caret-color: transparent !important;
-  -webkit-caret-color: transparent !important;
-  -moz-caret-color: transparent !important;
+/* Ensure interactive elements use proper cursor */
+button, [role="button"], .cursor-pointer, a {
+  cursor: pointer !important;
 }
 
-/* Force override any possible cursor settings */
-body, html, div, span, p, h1, h2, h3, h4, h5, h6 {
-  caret-color: transparent !important;
-  -webkit-caret-color: transparent !important;
-  -moz-caret-color: transparent !important;
-}
-
-/* Override any framework defaults */
-[class*="motion"], [class*="framer"], [class*="next"], [class*="react"] {
+/* NUCLEAR OPTION: Completely disable text cursor everywhere */
+*, *::before, *::after, 
+html, body, div, span, p, h1, h2, h3, h4, h5, h6, 
+section, article, main, aside, header, footer, nav,
+[class], [id] {
   caret-color: transparent !important;
   -webkit-caret-color: transparent !important;
   -moz-caret-color: transparent !important;
+  cursor: default !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
 }
 
-/* Disable text selection and cursor everywhere except buttons */
-* {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+/* Force cursor type for interactive elements */
+button, [role="button"], .cursor-pointer, a, 
+input[type="button"], input[type="submit"], input[type="reset"],
+button[type="button"] {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none !important;
 }
 
-/* Re-enable selection only for input elements (if any) */
-input, textarea {
-  user-select: text;
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
+/* Text input elements should allow text cursor only inside the input field */
+input[type="text"], input[type="email"], input[type="password"], 
+input[type="search"], input[type="url"], textarea {
+  cursor: text !important;
+  caret-color: currentColor !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+/* But still no text cursor outside the input area */
+input:not(:focus), textarea:not(:focus) {
+  caret-color: transparent !important;
 }
 
 /* Mobile optimizations */

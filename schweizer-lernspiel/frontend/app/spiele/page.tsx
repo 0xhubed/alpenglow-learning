@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/ui/Card';
-import { BookOpen, Calculator, Trees, Music, ArrowLeft, User, Map, Compass } from 'lucide-react';
+import { BookOpen, Calculator, Trees, Music, ArrowLeft, User, Map, Compass, Trophy } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { useAudio } from '@/hooks/useAudio';
 import useGameStore from '@/store/useGameStore';
@@ -89,6 +89,11 @@ export default function GamesPage() {
     router.push('/profil');
   };
 
+  const handleLeaderboard = () => {
+    playSound('click');
+    router.push('/rangliste');
+  };
+
   return (
     <div className="min-h-screen p-4 sm:p-8">
       <div className="game-container">
@@ -108,7 +113,7 @@ export default function GamesPage() {
                     Wähle zuerst dein Tier!
                   </h2>
                   <p className="text-lg sm:text-xl mb-6 text-white/90">
-                    Leo, Lynn, Elia, Nean, Lia, Noena oder Gast für Eltern
+                    Erstelle dein eigenes Profil und beginne zu spielen!
                   </p>
                   <motion.div
                     whileHover={{ scale: 1.05 }}
@@ -120,7 +125,7 @@ export default function GamesPage() {
                       onClick={handleProfile}
                       className="bg-white text-purple-600 hover:bg-gray-100 text-xl px-8 py-4 font-bold border-none shadow-lg"
                     >
-                      🦁🦄🐺🐸🐱🦋 Tier wählen
+                      Profil erstellen
                     </Button>
                   </motion.div>
                 </div>
@@ -144,22 +149,33 @@ export default function GamesPage() {
               Zurück
             </Button>
             
-            <Button
-              variant={user ? "success" : "primary"}
-              icon={User}
-              onClick={handleProfile}
-              className={`w-full sm:w-auto ${
-                user 
-                  ? 'bg-green-500 hover:bg-green-600' 
-                  : 'bg-purple-500 hover:bg-purple-600 ring-4 ring-purple-300 ring-offset-2 animate-pulse'
-              }`}
-            >
-              {user ? `✅ ${user.avatar.emoji} ${user.avatar.name}` : '🎭 Wähle dein Tier!'}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Button
+                variant="secondary"
+                icon={Trophy}
+                onClick={handleLeaderboard}
+                className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold"
+              >
+                🏆 Rangliste
+              </Button>
+              
+              <Button
+                variant={user ? "success" : "primary"}
+                icon={User}
+                onClick={handleProfile}
+                className={`w-full sm:w-auto ${
+                  user 
+                    ? 'bg-green-500 hover:bg-green-600' 
+                    : 'bg-purple-500 hover:bg-purple-600 ring-4 ring-purple-300 ring-offset-2 animate-pulse'
+                }`}
+              >
+                {user ? `✅ ${user.avatar.emoji} ${user.username}` : '🎮 Profil erstellen!'}
+              </Button>
+            </div>
           </div>
           
           <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 text-center">
-            {user ? `Hallo ${user.avatar.name}! Wähle dein Spiel!` : 'Wähle dein Spiel!'}
+            {user ? `Hallo ${user.username}! Wähle dein Spiel!` : 'Wähle dein Spiel!'}
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 text-center mt-2">
             {user 

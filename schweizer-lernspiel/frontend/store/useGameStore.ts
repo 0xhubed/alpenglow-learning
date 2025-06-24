@@ -2,17 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface Avatar {
-  id: string;
-  name: string;
   emoji: string;
   color: string;
-  description: string;
 }
 
 interface UserProfile {
   id: string;
   username: string;
-  email: string;
   avatar: Avatar;
   totalPoints: number;
   currentLevel: number;
@@ -38,63 +34,40 @@ interface LeaderboardEntry {
   lastPlayed: Date;
 }
 
-const AVATARS: Avatar[] = [
-  {
-    id: 'leo',
-    name: 'Leo',
-    emoji: '🦁',
-    color: 'from-orange-400 to-red-500',
-    description: 'Der mutige Löwe liebt Abenteuer!'
-  },
-  {
-    id: 'lynn',
-    name: 'Lynn',
-    emoji: '🦄',
-    color: 'from-purple-400 to-pink-500',
-    description: 'Das magische Einhorn bringt Glück!'
-  },
-  {
-    id: 'elia',
-    name: 'Elia',
-    emoji: '🐺',
-    color: 'from-blue-400 to-indigo-500',
-    description: 'Der schlaue Wolf kennt alle Geheimnisse!'
-  },
-  {
-    id: 'nean',
-    name: 'Nean',
-    emoji: '🐸',
-    color: 'from-green-400 to-emerald-500',
-    description: 'Der fröhliche Frosch springt überall hin!'
-  },
-  {
-    id: 'lia',
-    name: 'Lia',
-    emoji: '🐱',
-    color: 'from-pink-400 to-rose-500',
-    description: 'Die verspielte Katze ist sehr neugierig!'
-  },
-  {
-    id: 'noena',
-    name: 'Noena',
-    emoji: '🦋',
-    color: 'from-cyan-400 to-blue-500',
-    description: 'Der bunte Schmetterling tanzt durch die Luft!'
-  },
-  {
-    id: 'gast',
-    name: 'Gast',
-    emoji: '👨‍👩‍👧‍👦',
-    color: 'from-gray-400 to-slate-500',
-    description: 'Für Eltern und Besucher - schauen Sie sich die App an!'
-  }
+const AVATAR_EMOJIS = [
+  '😀', '😎', '🤓', '🥳', '😇', '🤠', '🦸', '🦹',
+  '🧙', '🧚', '🧛', '🧜', '🧝', '🤴', '👸', '🦁',
+  '🐯', '🦊', '🦝', '🐸', '🐵', '🦄', '🐨', '🐼',
+  '🐻', '🐺', '🐷', '🐮', '🐶', '🐱', '🐭', '🐹',
+  '🐰', '🦋', '🐝', '🐞', '🦗', '🐛', '🦀', '🐙',
+  '🦑', '🦐', '🐠', '🐟', '🐡', '🐬', '🦈', '🐳',
+  '🦜', '🦢', '🦩', '🦚', '🦉', '🦅', '🦆', '🐧',
+  '🐦', '🐤', '🐣', '🐥', '🦖', '🦕', '🐉', '🐲'
+];
+
+const AVATAR_COLORS = [
+  'from-red-400 to-red-600',
+  'from-orange-400 to-orange-600',
+  'from-yellow-400 to-yellow-600',
+  'from-green-400 to-green-600',
+  'from-teal-400 to-teal-600',
+  'from-blue-400 to-blue-600',
+  'from-indigo-400 to-indigo-600',
+  'from-purple-400 to-purple-600',
+  'from-pink-400 to-pink-600',
+  'from-rose-400 to-rose-600',
+  'from-cyan-400 to-cyan-600',
+  'from-emerald-400 to-emerald-600',
+  'from-lime-400 to-lime-600',
+  'from-amber-400 to-amber-600',
+  'from-fuchsia-400 to-fuchsia-600',
+  'from-violet-400 to-violet-600'
 ];
 
 interface GameStore {
   // User state
   user: UserProfile | null;
   isAuthenticated: boolean;
-  availableAvatars: Avatar[];
   leaderboard: LeaderboardEntry[];
   
   // Game progress
@@ -107,17 +80,20 @@ interface GameStore {
   
   // Actions
   setUser: (user: UserProfile | null) => void;
-  selectAvatar: (avatarId: string) => void;
+  createUser: (username: string, emoji: string, color: string) => void;
   updateUserPoints: (points: number) => void;
   updateGameProgress: (gameType: string, progress: Partial<GameProgress>) => void;
   completeGame: () => void;
   updateLeaderboard: () => void;
-  cleanupLeaderboard: () => void;
   resetData: () => void;
   toggleSound: () => void;
   toggleMusic: () => void;
   setMasterVolume: (volume: number) => void;
   logout: () => void;
+  
+  // Avatar options
+  getAvatarEmojis: () => string[];
+  getAvatarColors: () => string[];
 }
 
 const useGameStore = create<GameStore>()(
@@ -126,7 +102,6 @@ const useGameStore = create<GameStore>()(
       // Initial state
       user: null,
       isAuthenticated: false,
-      availableAvatars: AVATARS,
       leaderboard: [],
       gameProgress: {},
       isSoundEnabled: true,
@@ -140,18 +115,23 @@ const useGameStore = create<GameStore>()(
           isAuthenticated: !!user,
         })),
       
-      selectAvatar: (avatarId) => 
-        set((state) => {
-          const avatar = AVATARS.find(a => a.id === avatarId);
-          if (!avatar || !state.user) return state;
-          
-          return {
-            user: {
-              ...state.user,
-              avatar,
-            },
-          };
-        }),
+      createUser: (username, emoji, color) => {
+        const newUser: UserProfile = {
+          id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          username,
+          avatar: {
+            emoji,
+            color,
+          },
+          totalPoints: 0,
+          currentLevel: 1,
+          gamesCompleted: 0,
+          achievements: [],
+        };
+        
+        set({ user: newUser, isAuthenticated: true });
+        get().updateLeaderboard();
+      },
       
       updateUserPoints: (points) =>
         set((state) => ({
@@ -189,9 +169,6 @@ const useGameStore = create<GameStore>()(
         set((state) => {
           if (!state.user) return state;
           
-          // Don't add guest accounts to leaderboard
-          if (state.user.avatar.id === 'gast') return state;
-          
           const existingIndex = state.leaderboard.findIndex(entry => entry.id === state.user!.id);
           const newEntry: LeaderboardEntry = {
             id: state.user.id,
@@ -214,18 +191,6 @@ const useGameStore = create<GameStore>()(
           newLeaderboard.sort((a, b) => b.totalPoints - a.totalPoints);
           
           return { leaderboard: newLeaderboard };
-        }),
-      
-      cleanupLeaderboard: () =>
-        set((state) => {
-          // Filter out entries with invalid avatar names (test data) and guest accounts
-          const validAvatarNames = AVATARS.map(avatar => avatar.name);
-          const cleanLeaderboard = state.leaderboard.filter(entry => 
-            (validAvatarNames.includes(entry.username) || validAvatarNames.includes(entry.avatar.name)) &&
-            entry.avatar.id !== 'gast' // Exclude guest accounts from leaderboard
-          );
-          
-          return { leaderboard: cleanLeaderboard };
         }),
       
       resetData: () =>
@@ -257,6 +222,9 @@ const useGameStore = create<GameStore>()(
           isAuthenticated: false,
           gameProgress: {},
         })),
+      
+      getAvatarEmojis: () => AVATAR_EMOJIS,
+      getAvatarColors: () => AVATAR_COLORS,
     }),
     {
       name: 'schweizer-lernspiel-storage', // localStorage key

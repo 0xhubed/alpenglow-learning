@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Trophy, Star, GamepadIcon } from 'lucide-react';
+import { ArrowLeft, Trophy, Star, GamepadIcon, RefreshCw, Check, Crown } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import useGameStore from '@/store/useGameStore';
@@ -12,100 +12,93 @@ export default function ProfilPage() {
   const router = useRouter();
   const { 
     user, 
-    availableAvatars, 
     leaderboard, 
-    setUser, 
-    selectAvatar, 
+    createUser,
     updateLeaderboard,
-    cleanupLeaderboard,
-    resetData 
+    resetData,
+    getAvatarEmojis,
+    getAvatarColors
   } = useGameStore();
   
-  const [selectedAvatarId, setSelectedAvatarId] = useState<string>(user?.avatar?.id || '');
-  const [username, setUsername] = useState(user?.username || '');
+  const [username, setUsername] = useState('');
+  const [selectedEmoji, setSelectedEmoji] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  
+  const avatarEmojis = getAvatarEmojis();
+  const avatarColors = getAvatarColors();
+  
+  console.log('Avatar emojis:', avatarEmojis.length);
+  console.log('Avatar colors:', avatarColors.length);
 
   useEffect(() => {
-    // Clean up leaderboard on component mount
-    cleanupLeaderboard();
-    
-    // Initialize selected avatar if user exists
-    if (user) {
-      setSelectedAvatarId(user.avatar.id);
-      setUsername(user.avatar.name);
-      
-      // Ensure username matches avatar name (fix for old test data)
-      if (user.username !== user.avatar.name) {
-        const updatedUser = {
-          ...user,
-          username: user.avatar.name,
-        };
-        setUser(updatedUser);
-      }
+    // If user exists, redirect to games
+    if (user && !isCreatingUser) {
+      setUsername(user.username);
+      setSelectedEmoji(user.avatar.emoji);
+      setSelectedColor(user.avatar.color);
     }
-  }, [user, setUser, cleanupLeaderboard]);
+  }, [user, isCreatingUser]);
 
   const handleBackToOverview = () => {
+    router.push('/');
+  };
+
+  const handleGoToGames = () => {
     router.push('/spiele');
   };
 
-  const handleSaveProfile = () => {
-    if (!selectedAvatarId) return;
+  const handleCreateUser = () => {
+    if (!username.trim() || !selectedEmoji || !selectedColor) return;
     
-    const selectedAvatar = availableAvatars.find(a => a.id === selectedAvatarId);
-    if (!selectedAvatar) return;
-    
-    if (!user) {
-      // Create new user with selected avatar
-      const newUser = {
-        id: selectedAvatarId, // Use avatar id as user id
-        username: selectedAvatar.name,
-        email: '',
-        avatar: selectedAvatar,
-        totalPoints: 0,
-        currentLevel: 1,
-        gamesCompleted: 0,
-        achievements: [],
-      };
-      setUser(newUser);
-    } else {
-      // Update existing user's avatar
-      const updatedUser = {
-        ...user,
-        username: selectedAvatar.name,
-        avatar: selectedAvatar,
-      };
-      setUser(updatedUser);
-    }
-    
+    createUser(username.trim(), selectedEmoji, selectedColor);
     updateLeaderboard();
     router.push('/spiele');
   };
 
+  const handleNewUser = () => {
+    setIsCreatingUser(true);
+    setUsername('');
+    setSelectedEmoji('');
+    setSelectedColor('');
+    resetData();
+  };
 
-  // No need to check for user - anyone can select an avatar
+  const handleLeaderboard = () => {
+    router.push('/rangliste');
+  };
 
   const sortedLeaderboard = [...leaderboard].sort((a, b) => b.totalPoints - a.totalPoints);
   const userRank = user ? sortedLeaderboard.findIndex(entry => entry.id === user.id) + 1 : 0;
   
   // Limit leaderboard to top 5 entries
   const displayLeaderboard = sortedLeaderboard.slice(0, 5);
-  
-  // Check if there are invalid usernames (for debugging)
-  const validAvatarNames = availableAvatars.map(avatar => avatar.name);
-  const hasInvalidData = user && !validAvatarNames.includes(user.username);
+
+  const isFormValid = username.trim().length > 0 && selectedEmoji && selectedColor;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-400 via-pink-300 to-purple-500 p-4 sm:p-8 game-area">
-      {/* Back Button */}
-      <div className="mb-4">
+      {/* Navigation Buttons */}
+      <div className="mb-4 flex gap-3">
         <Button
           variant="secondary"
           icon={ArrowLeft}
           onClick={handleBackToOverview}
           className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
         >
-          Zurück zur Übersicht
+          Zurück
         </Button>
+        {user && (
+          <Button
+            variant="primary"
+            onClick={handleGoToGames}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            🎮 Zu den Spielen
+          </Button>
+        )}
       </div>
 
       <div className="max-w-4xl mx-auto">
@@ -115,210 +108,230 @@ export default function ProfilPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="text-6xl sm:text-8xl mb-4">🎭</div>
+          <div className="text-6xl sm:text-8xl mb-4">🎮</div>
           <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4 leading-tight">
-            Wähle dein Tier!
+            {user && !isCreatingUser ? 'Dein Profil' : 'Erstelle dein Profil'}
           </h1>
-          <p className="text-lg sm:text-xl text-white/90 mb-2">
-            Leo, Lynn, Elia, Nean, Lia, Noena oder Gast?
-          </p>
-          <p className="text-sm sm:text-lg text-white/70">
-            Eltern können &quot;Gast&quot; wählen um die App zu erkunden
+          <p className="text-lg sm:text-xl text-white/90">
+            {user && !isCreatingUser ? 'Schau dir deine Fortschritte an!' : 'Wähle einen Namen und dein Aussehen'}
           </p>
         </motion.div>
 
-        {/* Current Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-3 gap-2 sm:gap-4 mb-8 px-4 sm:px-0"
-        >
-              <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
-                <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400 mx-auto mb-2" />
-                <div className="text-lg sm:text-2xl font-bold text-white">{user?.totalPoints || 0}</div>
-                <div className="text-xs sm:text-base text-white/80">Punkte</div>
-              </Card>
-              
-              <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
-                <GamepadIcon className="w-6 h-6 sm:w-8 sm:h-8 text-green-400 mx-auto mb-2" />
-                <div className="text-lg sm:text-2xl font-bold text-white">{user?.gamesCompleted || 0}</div>
-                <div className="text-xs sm:text-base text-white/80">Spiele</div>
-              </Card>
-              
-              <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
-                <Star className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 mx-auto mb-2" />
-                <div className="text-lg sm:text-2xl font-bold text-white">#{userRank || '-'}</div>
-                <div className="text-xs sm:text-base text-white/80">Rang</div>
-              </Card>
-            </motion.div>
+        {/* Current Stats - Only show if user exists */}
+        {user && !isCreatingUser && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="grid grid-cols-3 gap-2 sm:gap-4 mb-8 px-4 sm:px-0"
+          >
+            <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
+              <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-white">{user.totalPoints}</div>
+              <div className="text-xs sm:text-base text-white/80">Punkte</div>
+            </Card>
+            
+            <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
+              <GamepadIcon className="w-6 h-6 sm:w-8 sm:h-8 text-green-400 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-white">{user.gamesCompleted}</div>
+              <div className="text-xs sm:text-base text-white/80">Spiele</div>
+            </Card>
+            
+            <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-center p-3 sm:p-6">
+              <Star className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-white">#{userRank || '-'}</div>
+              <div className="text-xs sm:text-base text-white/80">Rang</div>
+            </Card>
+          </motion.div>
+        )}
 
-
-        {/* Avatar Selection - Main Focus */}
+        {/* User Creation Form or Profile Display */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 px-4 sm:px-0"
         >
-          <Card className="bg-white/30 backdrop-blur-sm border-white/50 shadow-2xl">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                🎯 Tier-Auswahl
-              </h3>
-              <p className="text-sm sm:text-lg text-white/90">
-                Klicke auf dein Lieblingstier oder wähle &quot;Gast&quot; als Elternteil
-              </p>
-            </div>
-            
-            {/* Animals Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
-              {availableAvatars.filter(avatar => avatar.id !== 'gast').map((avatar) => (
-                <motion.div
-                  key={avatar.id}
-                  whileHover={{ scale: 1.08, y: -5 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`cursor-pointer transition-all duration-300 ${
-                    selectedAvatarId === avatar.id ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-purple-500' : ''
-                  }`}
-                  onClick={() => {
-                    setSelectedAvatarId(avatar.id);
-                    setUsername(avatar.name);
-                  }}
-                >
-                  <Card className={`text-center h-full ${
-                    selectedAvatarId === avatar.id 
-                      ? 'bg-yellow-200/90 border-yellow-400 border-2 shadow-lg' 
-                      : 'bg-white/15 border-white/30 hover:bg-white/25 hover:border-white/50'
-                  }`}>
-                    <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center text-3xl sm:text-5xl mx-auto mb-4 shadow-lg`}>
-                      {avatar.emoji}
-                    </div>
-                    <h4 className={`text-lg sm:text-xl font-bold mb-2 ${
-                      selectedAvatarId === avatar.id ? 'text-gray-800' : 'text-white'
-                    }`}>
-                      {avatar.name}
-                    </h4>
-                    <p className={`text-xs sm:text-sm mb-2 ${
-                      selectedAvatarId === avatar.id ? 'text-gray-700' : 'text-white/80'
-                    }`}>
-                      {avatar.description}
-                    </p>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-            
-            {/* Guest Option - Separate and Special */}
-            <div className="border-t border-white/30 pt-6">
-              <p className="text-center text-white/90 mb-4 text-sm sm:text-base">
-                👨‍👩‍👧‍👦 <strong>Für Eltern und Besucher:</strong>
-              </p>
-              {(() => {
-                const guestAvatar = availableAvatars.find(avatar => avatar.id === 'gast');
-                return guestAvatar ? (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`cursor-pointer transition-all duration-300 max-w-sm mx-auto ${
-                      selectedAvatarId === guestAvatar.id ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-purple-500' : ''
-                    }`}
-                    onClick={() => {
-                      setSelectedAvatarId(guestAvatar.id);
-                      setUsername(guestAvatar.name);
-                    }}
-                  >
-                    <Card className={`text-center ${
-                      selectedAvatarId === guestAvatar.id 
-                        ? 'bg-yellow-200/90 border-yellow-400 border-2 shadow-lg' 
-                        : 'bg-gray-500/20 border-gray-300/40 hover:bg-gray-400/30'
-                    }`}>
-                      <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br ${guestAvatar.color} flex items-center justify-center text-2xl sm:text-3xl mx-auto mb-3 shadow-lg`}>
-                        {guestAvatar.emoji}
-                      </div>
-                      <h4 className={`text-base sm:text-lg font-bold mb-2 ${
-                        selectedAvatarId === guestAvatar.id ? 'text-gray-800' : 'text-white'
-                      }`}>
-                        {guestAvatar.name}
-                      </h4>
-                      <p className={`text-xs sm:text-sm ${
-                        selectedAvatarId === guestAvatar.id ? 'text-gray-700' : 'text-white/80'
-                      }`}>
-                        {guestAvatar.description}
-                      </p>
-                    </Card>
-                  </motion.div>
-                ) : null;
-              })()}
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Action Buttons - Prominent */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8 text-center px-4 sm:px-0"
-        >
-          <div className="space-y-4">
-            {/* Main Action Button - Most Prominent */}
-            <motion.div
-              whileHover={selectedAvatarId ? { scale: 1.05 } : {}}
-              whileTap={selectedAvatarId ? { scale: 0.95 } : {}}
-            >
-              <Button
-                onClick={handleSaveProfile}
-                variant="primary"
-                disabled={!selectedAvatarId}
-                className={`w-full sm:w-auto px-8 py-4 text-xl sm:text-2xl font-bold shadow-xl ${
-                  selectedAvatarId 
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-none'
-                    : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                }`}
-              >
-                {selectedAvatarId ? (
-                  <span className="flex items-center gap-3">
-                    🎮 Jetzt Spielen! 
-                    {selectedAvatarId !== 'gast' && <span className="text-lg">🦁🦄🐺🐸🐱🦋</span>}
-                  </span>
-                ) : (
-                  '👆 Wähle zuerst dein Tier'
-                )}
-              </Button>
-            </motion.div>
-            
-            {/* Secondary Actions */}
-            <div className="flex flex-col sm:flex-row justify-center gap-3">
-              {/* Debug button - only show if there's invalid data */}
-              {hasInvalidData && (
+          {user && !isCreatingUser ? (
+            // Show existing user profile
+            <Card className="bg-white/30 backdrop-blur-sm border-white/50 shadow-2xl">
+              <div className="text-center mb-6">
+                <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br ${user.avatar.color} flex items-center justify-center text-5xl sm:text-6xl mx-auto mb-4 shadow-lg`}>
+                  {user.avatar.emoji}
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                  {user.username}
+                </h2>
+                <p className="text-white/80">Level {user.currentLevel}</p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row justify-center gap-3">
                 <Button
-                  onClick={() => {
-                    resetData();
-                    window.location.reload();
-                  }}
+                  onClick={handleLeaderboard}
                   variant="secondary"
-                  className="w-full sm:w-auto bg-red-500 text-white hover:bg-red-600"
+                  icon={Crown}
+                  className="bg-yellow-400 text-gray-800 hover:bg-yellow-500"
                 >
-                  🔧 Daten zurücksetzen
+                  🏆 Rangliste anzeigen
                 </Button>
-              )}
-            </div>
-            
-            {/* Selected Animal Display */}
-            {selectedAvatarId && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mt-4 p-4 bg-white/20 rounded-lg backdrop-blur-sm inline-block"
-              >
-                <p className="text-white text-sm sm:text-base">
-                  ✅ <strong>Ausgewählt:</strong> {username}
-                  {selectedAvatarId === 'gast' && ' (Eltern-Modus)'}
-                </p>
-              </motion.div>
-            )}
-          </div>
+                <Button
+                  onClick={handleNewUser}
+                  variant="secondary"
+                  icon={RefreshCw}
+                  className="bg-orange-400 text-gray-800 hover:bg-orange-500"
+                >
+                  Neuer Spieler
+                </Button>
+              </div>
+            </Card>
+          ) : (
+            // Show user creation form
+            <Card className="bg-white/30 backdrop-blur-sm border-white/50 shadow-2xl">
+              <div className="space-y-6" suppressHydrationWarning>
+                {/* Username Input */}
+                <div>
+                  <label className="block text-white font-bold mb-2 text-lg">
+                    Wie heißt du?
+                  </label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Dein Name"
+                    maxLength={20}
+                    className="w-full px-4 py-3 rounded-lg bg-white/80 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-yellow-400 text-lg"
+                    suppressHydrationWarning
+                  />
+                </div>
+
+                {/* Avatar Selection */}
+                <div>
+                  <label className="block text-white font-bold mb-2 text-lg">
+                    Wähle dein Aussehen
+                  </label>
+                  
+                  {/* Selected Avatar Preview */}
+                  <div className="flex justify-center mb-4">
+                    <div 
+                      onClick={() => selectedEmoji && setShowEmojiPicker(!showEmojiPicker)}
+                      className={`w-24 h-24 rounded-full ${selectedColor || 'bg-gray-300'} ${selectedColor && `bg-gradient-to-br ${selectedColor}`} flex items-center justify-center text-5xl cursor-pointer transition-all hover:scale-110 ${!selectedEmoji && 'border-4 border-dashed border-white/50'}`}
+                    >
+                      {selectedEmoji || '?'}
+                    </div>
+                  </div>
+
+                  {/* Emoji Picker */}
+                  <div className="mb-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        console.log('Emoji picker button clicked', showEmojiPicker);
+                        setShowEmojiPicker(!showEmojiPicker);
+                      }}
+                      className="w-full py-2 bg-white/20 rounded-lg text-white font-semibold hover:bg-white/30 transition-colors cursor-pointer"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {selectedEmoji ? 'Emoji ändern' : 'Emoji wählen'} 
+                    </button>
+                    
+                    <AnimatePresence>
+                      {showEmojiPicker && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="mt-2 bg-white/20 rounded-lg p-2 overflow-hidden"
+                        >
+                          <div className="grid grid-cols-8 gap-1 max-h-60 overflow-y-auto">
+                            {avatarEmojis.map((emoji) => (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={() => {
+                                  console.log('Emoji selected:', emoji);
+                                  setSelectedEmoji(emoji);
+                                  setShowEmojiPicker(false);
+                                }}
+                                className={`text-2xl p-2 rounded hover:bg-white/30 transition-colors cursor-pointer ${selectedEmoji === emoji && 'bg-white/40 ring-2 ring-yellow-400'}`}
+                                style={{ cursor: 'pointer' }}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Color Picker */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setShowColorPicker(!showColorPicker)}
+                      className="w-full py-2 bg-white/20 rounded-lg text-white font-semibold hover:bg-white/30 transition-colors cursor-pointer"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {selectedColor ? 'Farbe ändern' : 'Farbe wählen'}
+                    </button>
+                    
+                    <AnimatePresence>
+                      {showColorPicker && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="mt-2 bg-white/20 rounded-lg p-2 overflow-hidden"
+                        >
+                          <div className="grid grid-cols-4 gap-2">
+                            {avatarColors.map((color) => (
+                              <button
+                                key={color}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedColor(color);
+                                  setShowColorPicker(false);
+                                }}
+                                className={`h-12 rounded-lg bg-gradient-to-br ${color} hover:scale-110 transition-transform cursor-pointer ${selectedColor === color && 'ring-4 ring-yellow-400'}`}
+                                style={{ cursor: 'pointer' }}
+                              />
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                {/* Create Button */}
+                <motion.div
+                  whileHover={isFormValid ? { scale: 1.05 } : {}}
+                  whileTap={isFormValid ? { scale: 0.95 } : {}}
+                >
+                  <Button
+                    onClick={handleCreateUser}
+                    variant="primary"
+                    disabled={!isFormValid}
+                    className={`w-full py-4 text-xl font-bold ${
+                      isFormValid 
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white'
+                        : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                    }`}
+                  >
+                    {isFormValid ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Check className="w-6 h-6" />
+                        Profil erstellen & Spielen!
+                      </span>
+                    ) : (
+                      'Bitte alles ausfüllen'
+                    )}
+                  </Button>
+                </motion.div>
+              </div>
+            </Card>
+          )}
         </motion.div>
 
-        {/* Top 5 Leaderboard - Below Selected Animal */}
+        {/* Top 5 Leaderboard */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -326,7 +339,7 @@ export default function ProfilPage() {
           className="px-4 sm:px-0"
         >
           <Card className="bg-white/20 backdrop-blur-sm border-white/30">
-            <h3 className="text-xl sm:text-2xl font-bold text-white mb-6 text-center">🏆 Top 5</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-6 text-center">🏆 Top 5 Spieler</h3>
             <div className="space-y-3">
               {displayLeaderboard.length > 0 ? (
                 displayLeaderboard.map((entry, index) => (
@@ -368,8 +381,8 @@ export default function ProfilPage() {
                 <div className="text-center py-8">
                   <div className="text-4xl mb-3">🌟</div>
                   <p className="text-white/80 text-sm">
-                    Spiele ein paar Runden,<br />
-                    um die Rangliste zu füllen!
+                    Sei der erste Spieler!<br />
+                    Erstelle dein Profil und starte.
                   </p>
                 </div>
               )}
