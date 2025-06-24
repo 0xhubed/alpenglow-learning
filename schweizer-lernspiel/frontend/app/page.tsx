@@ -400,10 +400,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 1.8 }}
             className="mt-6"
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm border border-purple-300/30 rounded-full px-4 py-2">
-              <Award className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-gray-300">Created by Daniel Huber using advanced AI coding tools</span>
-            </div>
+            <span className="text-sm text-gray-400">© 2025 Daniel Huber</span>
           </motion.div>
         </motion.div>
 
