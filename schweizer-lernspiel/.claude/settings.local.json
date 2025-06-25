@@ -5,7 +5,9 @@
       "Bash(ls:*)",
       "Bash(rm:*)",
       "Bash(npm install:*)",
-      "Bash(vercel build:*)"
+      "Bash(vercel build:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }
