@@ -1,0 +1,11 @@
+backend/
+shared/
+*.log
+*.pid
+docker-compose.yml
+start-dev.sh
+stop-dev.sh
+.claude/
+DEPLOYMENT_GUIDE.md
+GETTING_STARTED.md
+README.md
