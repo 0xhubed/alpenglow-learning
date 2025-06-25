@@ -15,6 +15,7 @@ export default function ProfilPage() {
     leaderboard, 
     createUser,
     updateLeaderboard,
+    ensureCurrentUserInLeaderboard,
     resetData,
     getAvatarEmojis,
     getAvatarColors
@@ -26,12 +27,17 @@ export default function ProfilPage() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   
   const avatarEmojis = getAvatarEmojis();
   const avatarColors = getAvatarColors();
   
   console.log('Avatar emojis:', avatarEmojis.length);
   console.log('Avatar colors:', avatarColors.length);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     // If user exists, redirect to games
@@ -59,6 +65,11 @@ export default function ProfilPage() {
   };
 
   const handleNewUser = () => {
+    // Ensure current user's data is saved to leaderboard before switching
+    if (user) {
+      ensureCurrentUserInLeaderboard();
+    }
+    
     setIsCreatingUser(true);
     setUsername('');
     setSelectedEmoji('');
@@ -70,8 +81,9 @@ export default function ProfilPage() {
     router.push('/rangliste');
   };
 
-  const sortedLeaderboard = [...leaderboard].sort((a, b) => b.totalPoints - a.totalPoints);
-  const userRank = user ? sortedLeaderboard.findIndex(entry => entry.id === user.id) + 1 : 0;
+  // Only calculate after mount to prevent hydration mismatch
+  const sortedLeaderboard = isMounted ? [...leaderboard].sort((a, b) => b.totalPoints - a.totalPoints) : [];
+  const userRank = isMounted && user ? sortedLeaderboard.findIndex(entry => entry.id === user.id) + 1 : 0;
   
   // Limit leaderboard to top 5 entries
   const displayLeaderboard = sortedLeaderboard.slice(0, 5);

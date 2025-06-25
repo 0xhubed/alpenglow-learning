@@ -1,12 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { userAPI, UserProfile, LeaderboardEntry } from '@/lib/api/users';
 
 interface Avatar {
   emoji: string;
   color: string;
 }
 
-interface UserProfile {
+interface Avatar {
+  emoji: string;
+  color: string;
+}
+
+interface LocalUserProfile {
   id: string;
   username: string;
   avatar: Avatar;
@@ -25,7 +31,7 @@ interface GameProgress {
   lastPlayed: Date;
 }
 
-interface LeaderboardEntry {
+interface LocalLeaderboardEntry {
   id: string;
   username: string;
   avatar: Avatar;
@@ -49,29 +55,30 @@ const AVATAR_COLORS = [
   'from-red-400 to-red-600',
   'from-orange-400 to-orange-600',
   'from-yellow-400 to-yellow-600',
+  'from-lime-400 to-lime-600',
   'from-green-400 to-green-600',
-  'from-teal-400 to-teal-600',
+  'from-emerald-400 to-emerald-600',
+  'from-cyan-400 to-cyan-600',
   'from-blue-400 to-blue-600',
   'from-indigo-400 to-indigo-600',
   'from-purple-400 to-purple-600',
+  'from-fuchsia-400 to-fuchsia-600',
   'from-pink-400 to-pink-600',
   'from-rose-400 to-rose-600',
-  'from-cyan-400 to-cyan-600',
-  'from-emerald-400 to-emerald-600',
-  'from-lime-400 to-lime-600',
   'from-amber-400 to-amber-600',
-  'from-fuchsia-400 to-fuchsia-600',
-  'from-violet-400 to-violet-600'
+  'from-stone-400 to-stone-600',
+  'from-slate-400 to-slate-600'
 ];
 
 interface GameStore {
   // User state
-  user: UserProfile | null;
+  user: LocalUserProfile | null;
   isAuthenticated: boolean;
-  leaderboard: LeaderboardEntry[];
+  leaderboard: LocalLeaderboardEntry[];
+  isOnline: boolean;
   
-  // Game progress
-  gameProgress: Record<string, GameProgress>;
+  // Game progress - stored per user ID
+  gameProgress: Record<string, Record<string, GameProgress>>;
   
   // UI state
   isSoundEnabled: boolean;
@@ -79,17 +86,21 @@ interface GameStore {
   masterVolume: number;
   
   // Actions
-  setUser: (user: UserProfile | null) => void;
-  createUser: (username: string, emoji: string, color: string) => void;
-  updateUserPoints: (points: number) => void;
+  setUser: (user: LocalUserProfile | null) => void;
+  createUser: (username: string, emoji: string, color: string) => Promise<void>;
+  updateUserPoints: (points: number) => Promise<void>;
   updateGameProgress: (gameType: string, progress: Partial<GameProgress>) => void;
-  completeGame: () => void;
-  updateLeaderboard: () => void;
+  getCurrentUserGameProgress: () => Record<string, GameProgress>;
+  completeGame: () => Promise<void>;
+  updateLeaderboard: () => Promise<void>;
+  ensureCurrentUserInLeaderboard: () => void;
+  fetchLeaderboard: () => Promise<void>;
   resetData: () => void;
   toggleSound: () => void;
   toggleMusic: () => void;
   setMasterVolume: (volume: number) => void;
   logout: () => void;
+  setOnlineStatus: (status: boolean) => void;
   
   // Avatar options
   getAvatarEmojis: () => string[];
@@ -107,6 +118,7 @@ const useGameStore = create<GameStore>()(
       isSoundEnabled: true,
       isMusicEnabled: true,
       masterVolume: 0.7,
+      isOnline: typeof window !== 'undefined' ? window.navigator.onLine : true,
       
       // Actions
       setUser: (user) => 
@@ -115,8 +127,32 @@ const useGameStore = create<GameStore>()(
           isAuthenticated: !!user,
         })),
       
-      createUser: (username, emoji, color) => {
-        const newUser: UserProfile = {
+      createUser: async (username, emoji, color) => {
+        const state = get();
+        
+        if (state.isOnline) {
+          try {
+            const apiUser = await userAPI.createUser(username, { emoji, color });
+            const newUser: LocalUserProfile = {
+              id: apiUser.id,
+              username: apiUser.username,
+              avatar: apiUser.avatar,
+              totalPoints: apiUser.totalPoints,
+              currentLevel: apiUser.currentLevel,
+              gamesCompleted: apiUser.gamesCompleted,
+              achievements: apiUser.achievements,
+            };
+            
+            set({ user: newUser, isAuthenticated: true });
+            await get().fetchLeaderboard();
+            return;
+          } catch (error) {
+            console.error('Failed to create user online, falling back to offline mode:', error);
+          }
+        }
+        
+        // Fallback to local storage
+        const newUser: LocalUserProfile = {
           id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           username,
           avatar: {
@@ -133,7 +169,11 @@ const useGameStore = create<GameStore>()(
         get().updateLeaderboard();
       },
       
-      updateUserPoints: (points) =>
+      updateUserPoints: async (points) => {
+        const state = get();
+        if (!state.user) return;
+        
+        // Update local state immediately
         set((state) => ({
           user: state.user
             ? {
@@ -141,21 +181,52 @@ const useGameStore = create<GameStore>()(
                 totalPoints: state.user.totalPoints + points,
               }
             : null,
-        })),
+        }));
+        
+        // Sync with server if online
+        if (state.isOnline) {
+          try {
+            await userAPI.updatePoints(state.user.id, points);
+            await get().fetchLeaderboard();
+          } catch (error) {
+            console.error('Failed to sync points with server:', error);
+          }
+        }
+      },
       
       updateGameProgress: (gameType, progress) =>
-        set((state) => ({
-          gameProgress: {
-            ...state.gameProgress,
-            [gameType]: {
-              ...state.gameProgress[gameType],
-              ...progress,
-              lastPlayed: new Date(),
+        set((state) => {
+          if (!state.user) return state;
+          
+          const userId = state.user.id;
+          const userProgress = state.gameProgress[userId] || {};
+          
+          return {
+            gameProgress: {
+              ...state.gameProgress,
+              [userId]: {
+                ...userProgress,
+                [gameType]: {
+                  ...userProgress[gameType],
+                  ...progress,
+                  lastPlayed: new Date(),
+                },
+              },
             },
-          },
-        })),
+          };
+        }),
+        
+      getCurrentUserGameProgress: () => {
+        const state = get();
+        if (!state.user) return {};
+        return state.gameProgress[state.user.id] || {};
+      },
       
-      completeGame: () =>
+      completeGame: async () => {
+        const state = get();
+        if (!state.user) return;
+        
+        // Update local state immediately
         set((state) => ({
           user: state.user
             ? {
@@ -163,14 +234,45 @@ const useGameStore = create<GameStore>()(
                 gamesCompleted: state.user.gamesCompleted + 1,
               }
             : null,
-        })),
+        }));
+        
+        // Sync with server if online
+        if (state.isOnline) {
+          try {
+            await userAPI.completeGame(state.user.id);
+            await get().fetchLeaderboard();
+          } catch (error) {
+            console.error('Failed to sync game completion with server:', error);
+          }
+        }
+      },
       
-      updateLeaderboard: () =>
+      updateLeaderboard: async () => {
+        const state = get();
+        
+        if (state.isOnline) {
+          try {
+            await get().fetchLeaderboard();
+            // After fetching from server, ensure current user is in leaderboard
+            if (state.user) {
+              get().ensureCurrentUserInLeaderboard();
+            }
+            return;
+          } catch (error) {
+            console.error('Failed to fetch leaderboard from server:', error);
+          }
+        }
+        
+        // Fallback to local leaderboard update
+        get().ensureCurrentUserInLeaderboard();
+      },
+      
+      ensureCurrentUserInLeaderboard: () => {
         set((state) => {
           if (!state.user) return state;
           
           const existingIndex = state.leaderboard.findIndex(entry => entry.id === state.user!.id);
-          const newEntry: LeaderboardEntry = {
+          const newEntry: LocalLeaderboardEntry = {
             id: state.user.id,
             username: state.user.username,
             avatar: state.user.avatar,
@@ -191,14 +293,32 @@ const useGameStore = create<GameStore>()(
           newLeaderboard.sort((a, b) => b.totalPoints - a.totalPoints);
           
           return { leaderboard: newLeaderboard };
-        }),
+        });
+      },
+      
+      fetchLeaderboard: async () => {
+        try {
+          const serverLeaderboard = await userAPI.getLeaderboard();
+          
+          // Merge server data with local offline users
+          set((state) => {
+            const localOfflineUsers = state.leaderboard.filter(localUser => 
+              localUser.id.startsWith('user_') && 
+              !serverLeaderboard.some(serverUser => serverUser.id === localUser.id)
+            );
+            
+            const mergedLeaderboard = [...serverLeaderboard, ...localOfflineUsers];
+            return { leaderboard: mergedLeaderboard };
+          });
+        } catch (error) {
+          console.error('Failed to fetch leaderboard:', error);
+        }
+      },
       
       resetData: () =>
         set(() => ({
           user: null,
           isAuthenticated: false,
-          leaderboard: [],
-          gameProgress: {},
         })),
       
       toggleSound: () =>
@@ -220,8 +340,10 @@ const useGameStore = create<GameStore>()(
         set(() => ({
           user: null,
           isAuthenticated: false,
-          gameProgress: {},
         })),
+        
+      setOnlineStatus: (status) =>
+        set(() => ({ isOnline: status })),
       
       getAvatarEmojis: () => AVATAR_EMOJIS,
       getAvatarColors: () => AVATAR_COLORS,
@@ -237,6 +359,7 @@ const useGameStore = create<GameStore>()(
         isSoundEnabled: state.isSoundEnabled,
         isMusicEnabled: state.isMusicEnabled,
         masterVolume: state.masterVolume,
+        isOnline: state.isOnline,
       }),
     }
   )

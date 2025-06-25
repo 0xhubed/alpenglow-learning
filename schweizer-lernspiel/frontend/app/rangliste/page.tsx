@@ -12,21 +12,27 @@ export default function RanglistePage() {
   const router = useRouter();
   const { user, leaderboard } = useGameStore();
   const [showStats, setShowStats] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleBackToOverview = () => {
     router.push('/spiele');
   };
 
-  const sortedLeaderboard = [...leaderboard].sort((a, b) => b.totalPoints - a.totalPoints);
-  const userRank = user ? sortedLeaderboard.findIndex(entry => entry.id === user.id) + 1 : 0;
+  // Only calculate after mount to prevent hydration mismatch
+  const sortedLeaderboard = isMounted ? [...leaderboard].sort((a, b) => b.totalPoints - a.totalPoints) : [];
+  const userRank = isMounted && user ? sortedLeaderboard.findIndex(entry => entry.id === user.id) + 1 : 0;
   
   // Get top 10 for full leaderboard
   const topPlayers = sortedLeaderboard.slice(0, 10);
   
   // Calculate some stats
-  const totalPlayers = leaderboard.length;
-  const totalPoints = leaderboard.reduce((sum, player) => sum + player.totalPoints, 0);
-  const totalGames = leaderboard.reduce((sum, player) => sum + player.gamesCompleted, 0);
+  const totalPlayers = isMounted ? leaderboard.length : 0;
+  const totalPoints = isMounted ? leaderboard.reduce((sum, player) => sum + player.totalPoints, 0) : 0;
+  const totalGames = isMounted ? leaderboard.reduce((sum, player) => sum + player.gamesCompleted, 0) : 0;
   const averagePoints = totalPlayers > 0 ? Math.round(totalPoints / totalPlayers) : 0;
 
   const getRankIcon = (position: number) => {

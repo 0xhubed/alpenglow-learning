@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import AppProvider from '@/components/providers/AppProvider'
 
 export const metadata: Metadata = {
   title: 'Schweizer Abenteuerland - Lernspiel für Erstklässler',
@@ -17,7 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de-CH">
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <AppProvider>{children}</AppProvider>
+      </body>
     </html>
   )
 }

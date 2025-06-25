@@ -81,7 +81,7 @@ export default function GamesPage() {
 
   const handleBack = () => {
     playSound('click');
-    router.push('/');
+    router.push('/profil');
   };
 
   const handleProfile = () => {
@@ -97,42 +97,6 @@ export default function GamesPage() {
   return (
     <div className="min-h-screen p-4 sm:p-8">
       <div className="game-container">
-        {/* Animal Selection Call-to-Action */}
-        <AnimatePresence>
-          {!user && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="mb-8"
-            >
-              <Card className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 border-none text-white shadow-2xl">
-                <div className="text-center">
-                  <div className="text-4xl sm:text-6xl mb-4">🎭</div>
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-                    Wähle zuerst dein Tier!
-                  </h2>
-                  <p className="text-lg sm:text-xl mb-6 text-white/90">
-                    Erstelle dein eigenes Profil und beginne zu spielen!
-                  </p>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      variant="primary"
-                      icon={User}
-                      onClick={handleProfile}
-                      className="bg-white text-purple-600 hover:bg-gray-100 text-xl px-8 py-4 font-bold border-none shadow-lg"
-                    >
-                      Profil erstellen
-                    </Button>
-                  </motion.div>
-                </div>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Header */}
         <motion.div
@@ -146,7 +110,7 @@ export default function GamesPage() {
               icon={ArrowLeft}
               onClick={handleBack}
             >
-              Zurück
+              Zurück zur Profile
             </Button>
             
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -180,7 +144,7 @@ export default function GamesPage() {
           <p className="text-lg sm:text-xl text-gray-600 text-center mt-2">
             {user 
               ? 'Tippe auf ein Spiel, um zu beginnen' 
-              : 'Wähle zuerst dein Tier, dann kann es losgehen!'
+              : 'Erstelle zuerst dein Profil, dann kann es losgehen!'
             }
           </p>
         </motion.div>

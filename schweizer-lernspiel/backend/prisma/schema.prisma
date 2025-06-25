@@ -31,11 +31,12 @@ model User {
 model Profile {
   id              String            @id @default(cuid())
   userId          String            @unique
-  avatar          String?
+  avatar          Json              @default("{}")
   ageGroup        String            @default("6-7")
   preferences     Json              @default("{}")
   totalPoints     Int               @default(0)
   currentLevel    Int               @default(1)
+  gamesCompleted  Int               @default(0)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   
@@ -49,7 +50,10 @@ enum GameType {
   BUCHSTABEN
   ZAHLEN
   NATUR
+  ALPHORN
   MUSIK
+  JAHRESZEITEN
+  KANTONE
 }
 
 // Game progress tracking

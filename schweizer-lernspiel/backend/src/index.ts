@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import userRoutes from './api/users/routes';
+import prisma from './config/database';
 
 // Load environment variables
 dotenv.config();
@@ -43,13 +45,12 @@ app.get('/api', (req, res) => {
   });
 });
 
+// API routes
+app.use('/api/users', userRoutes);
+
 // Placeholder API routes
 app.use('/api/auth', (req, res) => {
   res.json({ message: 'Auth endpoints coming soon' });
-});
-
-app.use('/api/users', (req, res) => {
-  res.json({ message: 'User endpoints coming soon' });
 });
 
 app.use('/api/games', (req, res) => {
@@ -78,11 +79,19 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Swiss Learning Game Backend running on port ${PORT}`);
   console.log(`🌐 Health check: http://localhost:${PORT}/health`);
   console.log(`🔧 API: http://localhost:${PORT}/api`);
   console.log(`🏔️ Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Test database connection
+  try {
+    await prisma.$connect();
+    console.log('🗄️ Database connected successfully');
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+  }
 });
 
 export default app;
