@@ -2,14 +2,129 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Button from '@/components/ui/Button';
-import { Play, Brain, Sparkles, Award } from 'lucide-react';
+import { Play, Sparkles } from 'lucide-react';
 import { useAudio } from '@/hooks/useAudio';
+
+// Memoized components for better performance
+const Cloud = ({ index }: { index: number }) => {
+  const size = useMemo(() => 60 + Math.random() * 80, []);
+  const startY = useMemo(() => 10 + Math.random() * 30, []);
+  const duration = useMemo(() => 25 + Math.random() * 15, []);
+  
+  return (
+    <motion.div
+      className="absolute opacity-20 will-change-transform"
+      style={{
+        left: '-100px',
+        top: `${startY}%`,
+        fontSize: `${size}px`,
+      }}
+      animate={{
+        x: ['0vw', '110vw'],
+      }}
+      transition={{
+        duration: duration,
+        repeat: Infinity,
+        ease: "linear",
+        delay: index * 5,
+      }}
+    >
+      ☁️
+    </motion.div>
+  );
+};
+
+const SparkleParticle = () => {
+  const randomX = useMemo(() => Math.random() * 100, []);
+  const randomY = useMemo(() => Math.random() * 100, []);
+  const moveDistance = useMemo(() => 15 + Math.random() * 25, []);
+  const isSpecial = useMemo(() => Math.random() > 0.8, []);
+  const specialEmoji = useMemo(() => Math.random() > 0.5 ? '✨' : '⭐', []);
+  
+  return (
+    <motion.div
+      className={`absolute ${isSpecial ? 'text-lg' : 'w-2 h-2'} ${isSpecial ? '' : 'bg-white rounded-full'} will-change-transform`}
+      style={{
+        left: `${randomX}%`,
+        top: `${randomY}%`,
+      }}
+      animate={{
+        x: [0, moveDistance, -moveDistance, 0],
+        y: [0, -moveDistance, moveDistance, 0],
+        opacity: [0.2, 1, 0.2],
+        scale: [0.5, 1.2, 0.5],
+        rotate: isSpecial ? [0, 360] : 0,
+      }}
+      transition={{
+        duration: 6 + Math.random() * 6,
+        repeat: Infinity,
+        delay: Math.random() * 8,
+        ease: "easeInOut",
+      }}
+    >
+      {isSpecial ? specialEmoji : ''}
+    </motion.div>
+  );
+};
+
+const AdventureCharacter = ({ character, index }: { character: { emoji: string; color: string }, index: number }) => {
+  const xOffset = useMemo(() => Math.sin(index) * 10, [index]);
+  
+  return (
+    <motion.div
+      className="absolute text-2xl drop-shadow-lg cursor-pointer"
+      style={{
+        left: `${25 + (index * 10)}%`,
+        top: `${35 + (index % 2) * 30}%`,
+      }}
+      animate={{
+        y: [0, -15, 0],
+        x: [0, xOffset, 0],
+        rotate: [0, 10, -10, 0],
+        scale: [1, 1.2, 1],
+      }}
+      transition={{
+        duration: 3 + (index * 0.5),
+        repeat: Infinity,
+        delay: index * 0.3,
+        ease: "easeInOut",
+      }}
+      whileHover={{ scale: 1.5, rotate: 360 }}
+    >
+      <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${character.color} opacity-30 absolute -inset-1 blur-sm`}></div>
+      {character.emoji}
+    </motion.div>
+  );
+};
+
+const MagicalParticle = ({ index }: { index: number }) => {
+  const angle = useMemo(() => (index * Math.PI) / 4, [index]);
+  
+  return (
+    <motion.div
+      className="absolute w-2 h-2 bg-yellow-400 rounded-full"
+      style={{
+        left: `${50 + 40 * Math.cos(angle)}%`,
+        top: `${50 + 40 * Math.sin(angle)}%`,
+      }}
+      animate={{
+        scale: [0.5, 1.5, 0.5],
+        opacity: [0.3, 1, 0.3],
+      }}
+      transition={{
+        duration: 2,
+        repeat: Infinity,
+        delay: index * 0.2,
+      }}
+    />
+  );
+};
 
 export default function Home() {
   const router = useRouter();
-  const { playSound } = useAudio();
+  const { playSound } = useAudio({ preloadSounds: true });
   const { scrollYProgress } = useScroll();
   const y1 = useTransform(scrollYProgress, [0, 1], [0, -100]);
   const [isClient, setIsClient] = useState(false);
@@ -18,10 +133,24 @@ export default function Home() {
     setIsClient(true);
   }, []);
 
-  const handleStartGame = () => {
+  const handleStartGame = useCallback(() => {
     playSound('click');
     router.push('/profil');
-  };
+  }, [playSound, router]);
+
+  // Memoized static content
+  const characters = useMemo(() => [
+    { emoji: '🦁', color: 'from-orange-400 to-red-500' },
+    { emoji: '🦄', color: 'from-purple-400 to-pink-500' },
+    { emoji: '🐺', color: 'from-blue-400 to-indigo-500' },
+    { emoji: '🐸', color: 'from-green-400 to-emerald-500' },
+    { emoji: '🐱', color: 'from-pink-400 to-rose-500' },
+    { emoji: '🦋', color: 'from-cyan-400 to-blue-500' }
+  ], []);
+
+  const clouds = useMemo(() => Array.from({ length: 6 }, (_, i) => i), []);
+  const sparkles = useMemo(() => Array.from({ length: 15 }, (_, i) => i), []);
+  const magicalParticles = useMemo(() => Array.from({ length: 8 }, (_, i) => i), []);
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -31,69 +160,15 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-transparent via-blue-400/10 to-white/20"></div>
         
-        {/* Floating Clouds */}
-        {isClient && Array.from({ length: 6 }).map((_, i) => {
-          const size = 60 + Math.random() * 80;
-          const startY = 10 + Math.random() * 30;
-          const duration = 25 + Math.random() * 15;
-          
-          return (
-            <motion.div
-              key={`cloud-${i}`}
-              className="absolute opacity-20"
-              style={{
-                left: '-100px',
-                top: `${startY}%`,
-                fontSize: `${size}px`,
-              }}
-              animate={{
-                x: ['0vw', '110vw'],
-              }}
-              transition={{
-                duration: duration,
-                repeat: Infinity,
-                ease: "linear",
-                delay: i * 5,
-              }}
-            >
-              ☁️
-            </motion.div>
-          );
-        })}
+        {/* Floating Clouds - Reduced number and optimized */}
+        {isClient && clouds.map((i) => (
+          <Cloud key={`cloud-${i}`} index={i} />
+        ))}
         
-        {/* Enhanced Sparkle Particles */}
-        {isClient && Array.from({ length: 25 }).map((_, i) => {
-          const randomX = Math.random() * 100;
-          const randomY = Math.random() * 100;
-          const moveDistance = 15 + Math.random() * 25;
-          const isSpecial = Math.random() > 0.8;
-          
-          return (
-            <motion.div
-              key={`particle-${i}`}
-              className={`absolute ${isSpecial ? 'text-lg' : 'w-2 h-2'} ${isSpecial ? '' : 'bg-white rounded-full'}`}
-              style={{
-                left: `${randomX}%`,
-                top: `${randomY}%`,
-              }}
-              animate={{
-                x: [0, moveDistance, -moveDistance, 0],
-                y: [0, -moveDistance, moveDistance, 0],
-                opacity: [0.2, 1, 0.2],
-                scale: [0.5, 1.2, 0.5],
-                rotate: isSpecial ? [0, 360] : 0,
-              }}
-              transition={{
-                duration: 6 + Math.random() * 6,
-                repeat: Infinity,
-                delay: Math.random() * 8,
-                ease: "easeInOut",
-              }}
-            >
-              {isSpecial ? (Math.random() > 0.5 ? '✨' : '⭐') : ''}
-            </motion.div>
-          );
-        })}
+        {/* Enhanced Sparkle Particles - Reduced number */}
+        {isClient && sparkles.map((i) => (
+          <SparkleParticle key={`particle-${i}`} />
+        ))}
 
         {/* Mountain Silhouettes */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-800/30 to-transparent">
@@ -112,9 +187,9 @@ export default function Home() {
           </svg>
         </div>
 
-        {/* Ambient light orbs */}
+        {/* Ambient light orbs - Optimized animations */}
         <motion.div
-          className="absolute w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
+          className="absolute w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl will-change-transform"
           animate={{
             x: [0, 120, -80, 0],
             y: [0, -60, 80, 0],
@@ -127,7 +202,7 @@ export default function Home() {
           }}
         />
         <motion.div
-          className="absolute w-80 h-80 bg-gradient-to-r from-pink-500/15 to-yellow-500/15 rounded-full blur-2xl"
+          className="absolute w-80 h-80 bg-gradient-to-r from-pink-500/15 to-yellow-500/15 rounded-full blur-2xl will-change-transform"
           style={{ right: 0, bottom: '20%' }}
           animate={{
             x: [0, -100, 60, 0],
@@ -252,38 +327,8 @@ export default function Home() {
             </motion.div>
             
             {/* Enhanced floating characters with trail effects */}
-            {[
-              { emoji: '🦁', color: 'from-orange-400 to-red-500' },
-              { emoji: '🦄', color: 'from-purple-400 to-pink-500' },
-              { emoji: '🐺', color: 'from-blue-400 to-indigo-500' },
-              { emoji: '🐸', color: 'from-green-400 to-emerald-500' },
-              { emoji: '🐱', color: 'from-pink-400 to-rose-500' },
-              { emoji: '🦋', color: 'from-cyan-400 to-blue-500' }
-            ].map((character, i) => (
-              <motion.div
-                key={i}
-                className="absolute text-2xl drop-shadow-lg"
-                style={{
-                  left: `${25 + (i * 10)}%`,
-                  top: `${35 + (i % 2) * 30}%`,
-                }}
-                animate={{
-                  y: [0, -15, 0],
-                  x: [0, Math.sin(i) * 10, 0],
-                  rotate: [0, 10, -10, 0],
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  duration: 3 + (i * 0.5),
-                  repeat: Infinity,
-                  delay: i * 0.3,
-                  ease: "easeInOut",
-                }}
-                whileHover={{ scale: 1.5, rotate: 360 }}
-              >
-                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${character.color} opacity-30 absolute -inset-1 blur-sm`}></div>
-                {character.emoji}
-              </motion.div>
+            {characters.map((character, i) => (
+              <AdventureCharacter key={i} character={character} index={i} />
             ))}
             
             {/* Floating game elements */}
@@ -321,24 +366,8 @@ export default function Home() {
               animate={{ rotate: 360 }}
               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
             >
-              {Array.from({ length: 8 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-2 h-2 bg-yellow-400 rounded-full"
-                  style={{
-                    left: `${50 + 40 * Math.cos((i * Math.PI) / 4)}%`,
-                    top: `${50 + 40 * Math.sin((i * Math.PI) / 4)}%`,
-                  }}
-                  animate={{
-                    scale: [0.5, 1.5, 0.5],
-                    opacity: [0.3, 1, 0.3],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                  }}
-                />
+              {magicalParticles.map((i) => (
+                <MagicalParticle key={i} index={i} />
               ))}
             </motion.div>
 

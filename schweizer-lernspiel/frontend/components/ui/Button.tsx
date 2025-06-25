@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { LucideIcon } from 'lucide-react';
 
@@ -13,7 +13,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
-const Button: React.FC<ButtonProps> = ({
+const Button: React.FC<ButtonProps> = memo(({
   variant = 'primary',
   size = 'md',
   icon: Icon,
@@ -77,6 +77,8 @@ const Button: React.FC<ButtonProps> = ({
       )}
     </motion.button>
   );
-};
+});
+
+Button.displayName = 'Button';
 
 export default Button;
