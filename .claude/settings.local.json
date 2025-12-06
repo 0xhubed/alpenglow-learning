@@ -18,7 +18,8 @@
       "Bash(./start-dev.sh:*)",
       "Bash(./stop-dev.sh:*)",
       "Bash(timeout 6 npm run dev)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }
